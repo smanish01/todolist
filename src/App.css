@@ -37,7 +37,7 @@
 .login-form-button {
   width: 100%;
 }
-
+/*
 #root {
   position: absolute;
   height: 200px;
@@ -46,4 +46,11 @@
   top: 40%;
   left: 50%;
 }
+*/
 
+.nav {
+  height: 30px;
+  line-height: 30px;
+  margin-bottom: 16px;
+  background: #f8f8f8;
+}

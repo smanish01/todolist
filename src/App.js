@@ -1,57 +1,43 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import './App.css';
-import { Avatar } from 'antd';
-import { Form, Icon, Input, Button, Checkbox } from 'antd';
-import Signup from './Signup'
-import { Row, Col } from 'antd';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import Login from './Login';
+import Signup from './Signup';
+import Notes from './Notes';
+import { Button } from 'antd';
+import { Layout, Menu, Breadcrumb } from 'antd';
+const { Header, Content, Footer } = Layout;
 
-const FormItem = Form.Item;
 
 class App extends Component {
-  handleSubmit = (e) => {
-    e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log('Received values of form: ', values);
-      }
-    });
-  }
   render() {
-    const { getFieldDecorator } = this.props.form;
     return (
-
-      <Form onSubmit={this.handleSubmit} className="login-form">
-        <center><Avatar src="http://www.sitepronews.com/wp-content/uploads/2013/06/Any.DO-Logo-e1370535243254.png" size="large" shape="square" /></center>
-        <FormItem>
-          {getFieldDecorator('userName', {
-            rules: [{ required: true, message: 'Please input your username!' }],
-          })(
-            <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Username" />
-          )}
-        </FormItem>
-        <FormItem>
-          {getFieldDecorator('password', {
-            rules: [{ required: true, message: 'Please input your Password!' }],
-          })(
-            <Input prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="Password" />
-          )}
-        </FormItem>
-        <FormItem>
-          <Button type="primary" htmlType="submit" className="login-form-button">
-            Log in
-          </Button>
-          <center>OR</center>
-          <Button className="login-form-button">
-            Sign in with <Icon type="twitter" />
-          </Button>
-          <Button type="primary" className="login-form-button">Signup now</Button>
-        </FormItem>
-      </Form>
-
+      <Router>
+        <div>
+          <Layout className="layout">
+            <Header>
+              <Menu
+                theme="dark"
+                mode="horizontal"
+                defaultSelectedKeys={['2']}
+                style={{ lineHeight: '64px' }}
+              >
+                <Menu.Item key="1"><Link to={'/Login'}>Login</Link></Menu.Item>
+                <Menu.Item key="2"><Link to={'/Signup'}>Signup</Link></Menu.Item>
+                <Menu.Item key="3">Signup with twitter</Menu.Item>
+                <Menu.Item key="4"><Link to={'/Notes'}>Notes</Link></Menu.Item>
+              </Menu>
+            </Header>
+          </Layout>
+          <Switch>
+            <Route exact path='/Login' component={Login} />
+            <Route exact path='/Signup' component={Signup} />
+            <Route exact path='/Notes' component={Notes} />
+          </Switch>
+        </div>
+      </Router >
     );
   }
 }
+export default App;
 
 
-export default Form.create()(App);
