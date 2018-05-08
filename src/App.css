@@ -37,8 +37,8 @@
 .login-form-button {
   width: 100%;
 }
-/*
-#root {
+
+#middlePageDesign {
   position: absolute;
   height: 200px;
   width: 400px;
@@ -46,11 +46,26 @@
   top: 40%;
   left: 50%;
 }
-*/
 
 .nav {
   height: 30px;
   line-height: 30px;
   margin-bottom: 16px;
   background: #f8f8f8;
+}
+
+.dynamic-delete-button {
+  cursor: pointer;
+  position: relative;
+  top: 4px;
+  font-size: 24px;
+  color: #999;
+  transition: all .3s;
+}
+.dynamic-delete-button:hover {
+  color: #777;
+}
+.dynamic-delete-button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
 }

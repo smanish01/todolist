@@ -18,8 +18,8 @@ class Login extends Component {
   render() {
     const { getFieldDecorator } = this.props.form;
     return (
+      <div id="middlePageDesign">
         <Form onSubmit={this.handleSubmit} className="login-form">
-          <center><Avatar src="http://www.sitepronews.com/wp-content/uploads/2013/06/Any.DO-Logo-e1370535243254.png" size="large" shape="square" /></center>
           <FormItem>
             {getFieldDecorator('userName', {
               rules: [{ required: true, message: 'Please input your username!' }],
@@ -35,17 +35,12 @@ class Login extends Component {
             )}
           </FormItem>
           <FormItem>
-              <Button type="primary" htmlType="submit" className="login-form-button">
-                Log in
+            <Button type="primary" htmlType="submit" className="login-form-button">
+              Log in
           </Button>
-            <center>OR</center>
-            <Button className="login-form-button">
-              Sign in with <Icon type="twitter" />
-            </Button>
-              <Button type="primary" className="login-form-button">Signup now</Button>
           </FormItem>
         </Form>
-
+      </div>
     );
   }
 }
