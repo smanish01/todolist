@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import './App.css';
-import { Form, Input, Tooltip, Icon, Cascader, Select, Row, Col, Checkbox, Button, AutoComplete } from 'antd';
-const FormItem = Form.Item;
+import _ from 'lodash';
+import {Form, Icon} from 'antd';
+
 
 class Addnotes extends React.Component {
     constructor(props) {
@@ -14,15 +15,15 @@ class Addnotes extends React.Component {
     createUI() {
         return this.state.values.map((el, i) =>
             <div key={i}>
-                <input type="text" value={el || ''} onChange={this.handleChange.bind(this, i)} />
-                <input type='button' value='remove' onClick={this.removeClick.bind(this, i)} />
+                Task #{i+1}: <input type="text" value={el || ''} style={{margin: '10px'}} onChange={this.handleChange.bind(this, i)} />
+                <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i)}  style={{ fontSize: 20, color: '#08c' }}/>
             </div>
         )
     }
 
     handleChange(i, event) {
-            let values = [...this.state.values];
-            values[i] = event.target.value;
+            let values = _.clone(this.state.values);
+            values[i] = content :event.target.value;
             this.setState({ values });
     }
 
@@ -32,29 +33,35 @@ class Addnotes extends React.Component {
     }
 
     addClick() {
-        this.setState(prevState => ({ values: [...prevState.values, ''] }))
+        let cloneValue = _.clone(this.state.values)
+        cloneValue.push('')
+        this.setState(prevState => ({ values:cloneValue }))
     }
 
     removeClick(i) {
-        let values = [...this.state.values];
+        let values = _.clone(this.state.values);
         values.splice(i, 1);
         this.setState({ values });
     }
 
     handleSubmit(event) {
-        alert('notes title: ' + this.state.notes + ' and task submitted' + this.state.values.join(', '));
+
+    
+        console.log(this.state);
         event.preventDefault();
     }
 
     render() {
         return (
             <div id='middlePageDesign'>
-                <form onSubmit={this.handleSubmit}>
-                    <input type="text" value={this.state.value} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" required />
+                <form onSubmit={this.handleSubmit} >
+                    Notes title: <input type="text" value={this.state.value} style={{margin: '10px'}} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" required />
                     <br />
                     {this.createUI()}
+                    <div id='addFormButtons'>
                     <input type="button" value="add task" onClick={this.addClick.bind(this)} />
                     <input type="submit" value="Submit" />
+                    </div>
                 </form>
             </div>
         );
