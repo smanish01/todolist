@@ -15,7 +15,7 @@ class Addnotes extends React.Component {
     createUI() {
         return this.state.values.map((el, i) =>
             <div key={i}>
-                Task #{i+1}: <input type="text" value={el || ''} style={{margin: '10px'}} onChange={this.handleChange.bind(this, i)} />
+                Task #{i+1}: <input type="text" value={ el.content || '' } style={{margin: '10px'}} onChange={this.handleChange.bind(this, i)} />
                 <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i)}  style={{ fontSize: 20, color: '#08c' }}/>
             </div>
         )
@@ -23,7 +23,7 @@ class Addnotes extends React.Component {
 
     handleChange(i, event) {
             let values = _.clone(this.state.values);
-            values[i] = content :event.target.value;
+            values[i].content = event.target.value; /*made change here*/
             this.setState({ values });
     }
 
@@ -34,7 +34,7 @@ class Addnotes extends React.Component {
 
     addClick() {
         let cloneValue = _.clone(this.state.values)
-        cloneValue.push('')
+        cloneValue.push({content: ''}) /*made change here*/
         this.setState(prevState => ({ values:cloneValue }))
     }
 
@@ -45,8 +45,6 @@ class Addnotes extends React.Component {
     }
 
     handleSubmit(event) {
-
-    
         console.log(this.state);
         event.preventDefault();
     }
