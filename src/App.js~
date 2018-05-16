@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import Login from './view/Login';
-import Signup from './view/Signup';
-import Twitter from './view/Twitter';
-import Viewnotes from './view/Viewnotes';
-import Notes1 from './view/Notes1';
-import Addnotes from './view/Addnotes';
+import Login from './Login';
+import Signup from './Signup';
+import Twitter from './Twitter';
+import Viewnotes from './Viewnotes';
+import Notes1 from './Notes1';
+import Addnotes from './Addnotes';
 import { Layout, Menu, Breadcrumb, Icon } from 'antd';
 const { Header, Content, Footer } = Layout;
 
