@@ -1,6 +1,10 @@
 var mongoose = require('mongoose');
-//mongoose.connect('mongodb://localhost/database');
+mongoose.connect('mongodb://localhost/database');
+var bcrypt = require('bcrypt');
+var Promise = require("bluebird");
+const saltRounds = 10;
 
+//defining the schema
 var userTableSchema = new mongoose.Schema({
 
     userName: String,
@@ -35,17 +39,38 @@ var contentTableSchema = new mongoose.Schema({
 
 })
 
-//defining the model
 
+//defining the model
 var userTableModel = mongoose.model('userTableModel', userTableSchema);
 var notesTableModel = mongoose.model('notesTableModel', notesTableSchema);
 var contentTableModel = mongoose.model('contentTableModel', contentTableSchema);
 
 //exporting the functions
 
-exports.create = function (userObj) {
+exports.createAccount = function (userObj) {
+
+    userObj.password = bcrypt.hashSync(userObj.password, saltRounds);;
+    console.log(userObj);
     var createData = new userTableModel(userObj);
-    console.log(createData);
+    createData.save(function (err) {
+        if (err) return handleError(err);
+        // saved!
+    });
+
 }
 
+exports.findAccount = function (name) {
+    userTableModel.find({ name: name }, (err, doc) => {
+        if (err) throw err
+        console.log(doc);
+    })
+}
 
+exports.checkCredentials = function (userObj) {
+
+    userTableModel.findOne({ userName: userObj.userName })
+        .then(res => {
+            result = bcrypt.compareSync(userObj.password, res.password);
+        }).catch(err => console.log(err)).exec();
+
+}

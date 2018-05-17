@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import axios from 'axios';
 import '../App.css';
 import { Form, Icon, Input, Button, Checkbox } from 'antd';
 
@@ -10,7 +11,11 @@ class Login extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+
+        axios.post('http://localhost:3001/login', values)
+        .then(response => console.log(response))
+        .catch(error => console.log(error));
+        
       }
     });
   }

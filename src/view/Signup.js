@@ -12,7 +12,9 @@ class Signup extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
 
-                axios.post('http://localhost:3001', values);
+                axios.post('http://localhost:3001/signup', values) 
+                .then(response => console.log(response))
+                .catch(error => console.log(error));
             }
         });
     }

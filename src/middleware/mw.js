@@ -2,10 +2,11 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var mongoose = require('mongoose');
-const create = require('./db');
+var db = require('../database/db');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 
 //allow cors 
 app.use(function (req, res, next) {
@@ -14,8 +15,17 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.post('/', function (req, res) {
-    create(req.body);
+app.post('/signup', function (req, res) {
+
+    //steps to hash the password
+    db.createAccount(req.body);
+
+    //db.findAccount(req.body.name);
+})
+
+app.post('/login', function (req, res) {
+    
+    var result = db.checkCredentials(req.body)
 })
 
 app.listen(3001);
