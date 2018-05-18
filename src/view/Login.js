@@ -13,7 +13,12 @@ class Login extends Component {
       if (!err) {
 
         axios.post('http://localhost:3001/login', values)
-        .then(response => console.log(response))
+        .then(response => {
+          if(response.data.message == 'connected')
+            alert('you are logged in');
+          else
+            alert('wrong credentials');
+        })
         .catch(error => console.log(error));
         
       }

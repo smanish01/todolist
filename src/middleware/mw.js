@@ -1,12 +1,12 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
-var mongoose = require('mongoose');
-var db = require('../database/db');
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const db = require('../database/db');
+const bcrypt = require('bcrypt');
+const session = require('express-sessions');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
 
 //allow cors 
 app.use(function (req, res, next) {
@@ -15,17 +15,39 @@ app.use(function (req, res, next) {
     next();
 });
 
+app.use(session({
+    resave: false,
+    saveUninitialized: true,
+    key: req.body.userName
+  }))
+
+  app.use(function (req, res, next) {
+    if (req.session.key == req.body.userName) 
+  
+    next()
+  })
+
 app.post('/signup', function (req, res) {
 
-    //steps to hash the password
     db.createAccount(req.body);
 
-    //db.findAccount(req.body.name);
+    //db.findAccount(req.body.name); //testing purpose
 })
 
 app.post('/login', function (req, res) {
-    
-    var result = db.checkCredentials(req.body)
+
+    db.checkCredentials(req.body)
+        .then((doc) => {
+            if (bcrypt.compareSync(req.body.password, doc.password))
+                return res.send(req.session.userName + 'logged in');
+
+            return res.send('not logged in')
+
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(400).json({ error: 'Wrong credentials' });
+        })
 })
 
 app.listen(3001);
