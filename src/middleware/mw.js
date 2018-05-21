@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const db = require('../database/db');
 const bcrypt = require('bcrypt');
-const session = require('express-sessions');
+const session = require('express-session');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -15,17 +15,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use(session({
-    resave: false,
-    saveUninitialized: true,
-    key: req.body.userName
-  }))
-
-  app.use(function (req, res, next) {
-    if (req.session.key == req.body.userName) 
-  
-    next()
-  })
 
 app.post('/signup', function (req, res) {
 
@@ -39,9 +28,7 @@ app.post('/login', function (req, res) {
     db.checkCredentials(req.body)
         .then((doc) => {
             if (bcrypt.compareSync(req.body.password, doc.password))
-                return res.send(req.session.userName + 'logged in');
-
-            return res.send('not logged in')
+                return res.status(200).json({ message: 'connected' });
 
         })
         .catch((err) => {

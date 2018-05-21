@@ -14,6 +14,7 @@ class Login extends Component {
 
         axios.post('http://localhost:3001/login', values)
         .then(response => {
+          console.log(response)
           if(response.data.message == 'connected')
             alert('you are logged in');
           else
