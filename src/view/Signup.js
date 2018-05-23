@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
 import '../App.css';
 
 import { Form, Input, Tooltip, Icon, Cascader, Select, Row, Col, Checkbox, Button, AutoComplete } from 'antd';
 const FormItem = Form.Item;
 
 class Signup extends React.Component {
-    handleSubmit = (e) => {
+    handleSubmit(e){
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
 
-                axios.post('http://localhost:3001/signup', values) 
+                axios.post('http://localhost:3002/signup', values) 
                 .then(response => console.log(response))
                 .catch(error => console.log(error));
             }

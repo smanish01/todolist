@@ -1,0 +1,2 @@
+1. serve static assets through node
+2. compile react using gulp and do not start server

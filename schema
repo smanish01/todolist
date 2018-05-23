@@ -1,0 +1,34 @@
+userTableSchemaHandle = new mongoose.Schema({
+
+            userName: String,
+            name: String,
+            emailId: String,
+            // 'password' will be hashed 
+            password: String,
+            profilePhoto: Buffer,
+            // the token of the user
+            sessionId : String 
+
+        })
+
+notesTableSchemaHandle = new mongoose.Schema({
+
+            // id of the owner
+            uId: String,
+            title: String,
+            date: Date,
+            isDeleted: Boolean,
+            //collaborators of the note
+            sharedWith: Array
+
+        })
+
+contentTableSchemaHandle = new mongoose.Schema({
+
+            // the id of the note it is present in
+            notesID: String,
+            content: String,
+            isChecked: Boolean
+
+        })
+

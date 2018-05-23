@@ -1,0 +1,28 @@
+var config = {
+  module: {
+
+    rules: [
+	{
+       use: {
+          loader:'babel-loader',
+          options: { presets: ['es2015'] }
+       },
+       test: /\.js$/,
+       exclude: /node_modules/
+    }      
+	,{
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader"
+        }
+      }
+    ]
+  },
+  output: {
+    filename: 'bundle.js',
+    path: '/home/trainee9/Desktop/todolist/public/assets/js/'
+  }
+};
+
+module.exports = config;

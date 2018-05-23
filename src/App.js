@@ -6,6 +6,7 @@ import Twitter from './view/Twitter';
 import Viewnotes from './view/Viewnotes';
 import Notes1 from './view/Notes1';
 import Addnotes from './view/Addnotes';
+import Logout from './view/Logout';
 import { Layout, Menu, Breadcrumb, Icon } from 'antd';
 const { Header, Content, Footer } = Layout;
 
@@ -28,6 +29,7 @@ class App extends Component {
                 <Menu.Item key="3"><Link to={'/Twitter'}>Signin with <Icon type="twitter" /></Link></Menu.Item>
                 <Menu.Item key="4"><Link to={'/Viewnotes'}>Viewnotes</Link></Menu.Item>
                 <Menu.Item key="5"><Link to={'/Addnotes'}><Icon type="plus-circle" /></Link></Menu.Item>
+                <Menu.Item key="6"><Link to={'/Logout'}>Logout</Link></Menu.Item>
               </Menu>
             </Header>
           </Layout>
@@ -38,6 +40,7 @@ class App extends Component {
             <Route exact path='/Viewnotes' component={Viewnotes} />
             <Route exact path='/Addnotes' component={Addnotes} />
             <Route exact path='/Notes1' component={Notes1} />
+            <Route exact path='/Logout' component={Logout} />
           </Switch>
         </div>
       </Router >

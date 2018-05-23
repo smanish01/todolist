@@ -1,0 +1,27 @@
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import '../App.css';
+import { Avatar } from 'antd';
+import { Form, Icon, Input, Button, Checkbox } from 'antd';
+import axios from 'axios';
+const FormItem = Form.Item;
+
+class Logout extends React.Component {
+    Logout(event) {
+    
+            event.preventDefault();
+            axios.post('http://localhost:3001/logout')
+                .then(response => alert(response))
+                .catch(error => alert(error));
+    }
+
+    render() {
+        return (
+            <div id='middlePageDesign'>
+                <Button type="primary" onClick={this.Logout}>Click here to Logout</Button>
+            </div>
+        );
+    }
+}
+
+export default Logout;

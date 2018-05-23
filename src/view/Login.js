@@ -1,27 +1,47 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
+
 import '../App.css';
 import { Form, Icon, Input, Button, Checkbox } from 'antd';
 
 const FormItem = Form.Item;
 
 class Login extends Component {
-  handleSubmit = (e) => {
+
+  constructor(props){
+    super(props);
+    this.getData = this.getData.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  getData(){
+    fetch('http://localhost:3002/hello?' + Date.now(),{
+      credentials: "same-origin"
+    })
+    .then(response => {
+      console.log(response)      
+    })
+    .catch(error => console.log(error));
+  }
+
+  handleSubmit(e){
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
 
-        axios.post('http://localhost:3001/login', values)
-        .then(response => {
-          console.log(response)
-          if(response.data.message == 'connected')
-            alert('you are logged in');
-          else
-            alert('wrong credentials');
-        })
-        .catch(error => console.log(error));
-        
+        postData('http://localhost:3002/login', values)
+  // .then(data => console.log(data)) // JSON from `response.json()` call
+  // .catch(error => console.error(error))
+        // window.request({url:'http://localhost:3002/login', data:values, withCredentials: true,method: 'post'})
+          .then(response => {
+            console.log(response)
+            if (response.data.message == 'connected')
+              alert('you are logged in');
+            else
+              alert('wrong credentials');
+          })
+          .catch(error => console.log(error));
+
       }
     });
   }
@@ -31,10 +51,10 @@ class Login extends Component {
       <div id='middlePageDesign'>
         <Form onSubmit={this.handleSubmit} className="login-form">
           <FormItem>
-            {getFieldDecorator('userName', {
-              rules: [{ required: true, message: 'Please input your username!' }],
+            {getFieldDecorator('emailId', {
+              rules: [{ required: true, message: 'Please input your email!' }],
             })(
-              <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Username" />
+              <Input prefix={<Icon type="mail" style={{ color: 'rgba(0,0,0,.25)' }} />} type="email" placeholder="Email" />
             )}
           </FormItem>
           <FormItem>
@@ -48,6 +68,9 @@ class Login extends Component {
             <Button type="primary" htmlType="submit" className="login-form-button">
               Log in
           </Button>
+          <Button type="primary" htmlType="button" onClick={this.getData} className="login-form-button">
+              Get Data
+          </Button>
           </FormItem>
         </Form>
       </div>
@@ -56,3 +79,24 @@ class Login extends Component {
 }
 
 export default Form.create()(Login);
+
+
+
+function postData(url, data) {
+  // Default options are marked with *
+  return fetch(url, {
+
+    body: JSON.stringify(data), // must match 'Content-Type' header
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, same-origin, *omit
+    headers: {
+      'user-agent': 'Mozilla/4.0 MDN Example',
+      'content-type': 'application/json'
+    },
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, cors, *same-origin
+    redirect: 'follow', // manual, *follow, error
+    referrer: 'no-referrer', // *client, no-referrer
+  })
+  .then(response => response.json()) // parses response to JSON
+}

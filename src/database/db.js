@@ -38,17 +38,17 @@ var contentTableSchema = new mongoose.Schema({
 
 })
 
-
 //defining the model
 var userTableModel = mongoose.model('userTableModel', userTableSchema);
 var notesTableModel = mongoose.model('notesTableModel', notesTableSchema);
 var contentTableModel = mongoose.model('contentTableModel', contentTableSchema);
 
 
+
 exports.createAccount = function (userObj) {
 
     userObj.password = bcrypt.hashSync(userObj.password, saltRounds);;
-    console.log(userObj);
+    // console.log(userObj);
     var createData = new userTableModel(userObj);
     createData.save(function (err) {
         if (err) return handleError(err);
@@ -65,6 +65,20 @@ exports.findAccount = function (name) {
     })
 }
 
+/*
+//get the session
+function find(collec, query, callback) {
+    mongoose.connection.database.collection(collec, function (err, collection) {
+        collection.find(query).toArray(callback);
+    });
+}
+
+exports.findSession = function (sessionId) {
+    return find('mySessions', { sessionId: sessionId }, function (err, docs) {
+        console.log(docs)});
+}
+*/
+
 exports.checkCredentials = function (userObj) {
-    return userTableModel.findOne({ userName: userObj.userName }).exec();
+    return userTableModel.findOne({ emailId: userObj.emailId }).exec();
 }

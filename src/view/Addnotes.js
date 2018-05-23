@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import '../App.css';
+import axios from 'axios';
 import _ from 'lodash';
 import {Form, Icon} from 'antd';
 
@@ -45,8 +46,10 @@ class Addnotes extends React.Component {
     }
 
     handleSubmit(event) {
-        console.log(this.state);
         event.preventDefault();
+        axios.post('http://localhost:3001/addnotes',this.state)
+        .then(response => alert(response))
+        .catch(error => alert(error));
     }
 
     render() {
