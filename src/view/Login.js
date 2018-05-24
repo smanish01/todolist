@@ -10,10 +10,10 @@ class Login extends Component {
 
   constructor(props){
     super(props);
-    this.getData = this.getData.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  /* testing purpose
   getData(){
     fetch('http://localhost:3002/hello?' + Date.now(),{
       credentials: "same-origin"
@@ -23,6 +23,7 @@ class Login extends Component {
     })
     .catch(error => console.log(error));
   }
+  */
 
   handleSubmit(e){
     e.preventDefault();
@@ -68,9 +69,6 @@ class Login extends Component {
             <Button type="primary" htmlType="submit" className="login-form-button">
               Log in
           </Button>
-          <Button type="primary" htmlType="button" onClick={this.getData} className="login-form-button">
-              Get Data
-          </Button>
           </FormItem>
         </Form>
       </div>
@@ -98,5 +96,5 @@ function postData(url, data) {
     redirect: 'follow', // manual, *follow, error
     referrer: 'no-referrer', // *client, no-referrer
   })
-  .then(response => response.json()) // parses response to JSON
+  //.then(response => response.json()) // parses response to 
 }

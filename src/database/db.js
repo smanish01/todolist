@@ -6,24 +6,40 @@ const saltRounds = 10;
 //defining the schema
 var userTableSchema = new mongoose.Schema({
 
-    userName: String,
+    userName: {
+        type: String,
+        unique: true,
+        required: true,
+        trim: true        
+    },
     name: String,
-    emailId: String,
+    emailId:{
+        type: String,
+        unique: true,
+        required: true,
+        trim: true        
+    },
     // 'password' will be hashed 
-    password: String,
-    profilePhoto: Buffer,
-    // the token of the user
-    sessionId: String
-
+    password:{
+            type: String,
+            required: true,     
+        },
+    profilePhoto: Buffer
 })
 
 var notesTableSchema = new mongoose.Schema({
 
     // id of the owner
-    uId: String,
+    uId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'userTableModel'
+      },
     title: String,
-    date: Date,
-    isDeleted: Boolean,
+    date: {type: Date, default: Date.now()},
+    isDeleted: {
+        type : Boolean,
+        default : false
+    },
     //collaborators of the note
     sharedWith: Array
 
@@ -32,9 +48,15 @@ var notesTableSchema = new mongoose.Schema({
 var contentTableSchema = new mongoose.Schema({
 
     // the id of the note it is present in
-    notesID: String,
+    notesID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'notesTableModel'
+      },
     content: String,
-    isChecked: Boolean
+    isChecked: {
+        type : Boolean,
+        default : false
+    }
 
 })
 
@@ -57,6 +79,28 @@ exports.createAccount = function (userObj) {
 
 }
 
+exports.createNotes = function(notesObj){
+    console.log(notesObj);
+
+    //creating notes objects
+
+    var notesObjDatabase = {
+        uId : notesObj.userId,
+        title  : notesObj.notes
+    };
+
+
+    var createNotes = new notesTableModel(notesObjDatabase);
+    createData.save(function (err,doc) {
+        if (err) return handleError(err);
+            
+        var counter = notesObj.values;
+        //createContent remainig
+            
+    });
+
+}
+
 //testing purpose
 exports.findAccount = function (name) {
     userTableModel.find({ name: name }, (err, doc) => {
@@ -64,20 +108,6 @@ exports.findAccount = function (name) {
         console.log(doc);
     })
 }
-
-/*
-//get the session
-function find(collec, query, callback) {
-    mongoose.connection.database.collection(collec, function (err, collection) {
-        collection.find(query).toArray(callback);
-    });
-}
-
-exports.findSession = function (sessionId) {
-    return find('mySessions', { sessionId: sessionId }, function (err, docs) {
-        console.log(docs)});
-}
-*/
 
 exports.checkCredentials = function (userObj) {
     return userTableModel.findOne({ emailId: userObj.emailId }).exec();
