@@ -10,20 +10,20 @@ var userTableSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true,
-        trim: true        
+        trim: true
     },
     name: String,
-    emailId:{
+    emailId: {
         type: String,
         unique: true,
         required: true,
-        trim: true        
+        trim: true
     },
     // 'password' will be hashed 
-    password:{
-            type: String,
-            required: true,     
-        },
+    password: {
+        type: String,
+        required: true,
+    },
     profilePhoto: Buffer
 })
 
@@ -33,12 +33,12 @@ var notesTableSchema = new mongoose.Schema({
     uId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'userTableModel'
-      },
+    },
     title: String,
-    date: {type: Date, default: Date.now()},
+    date: { type: Date, default: Date.now() },
     isDeleted: {
-        type : Boolean,
-        default : false
+        type: Boolean,
+        default: false
     },
     //collaborators of the note
     sharedWith: Array
@@ -51,11 +51,11 @@ var contentTableSchema = new mongoose.Schema({
     notesID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'notesTableModel'
-      },
+    },
     content: String,
     isChecked: {
-        type : Boolean,
-        default : false
+        type: Boolean,
+        default: false
     }
 
 })
@@ -71,44 +71,71 @@ exports.createAccount = function (userObj) {
 
     userObj.password = bcrypt.hashSync(userObj.password, saltRounds);;
     // console.log(userObj);
-    var createData = new userTableModel(userObj);
-    createData.save(function (err) {
+    var createAccount = new userTableModel(userObj);
+    createAccount.save(function (err) {
         if (err) return handleError(err);
         // saved!
     });
 
 }
 
-exports.createNotes = function(notesObj){
+exports.createNotes = function (notesObj) {
     console.log(notesObj);
 
     //creating notes objects
 
     var notesObjDatabase = {
-        uId : notesObj.userId,
-        title  : notesObj.notes
+        uId: notesObj.userId,
+        title: notesObj.notes
     };
 
 
     var createNotes = new notesTableModel(notesObjDatabase);
-    createData.save(function (err,doc) {
+    createNotes.save(function (err, notesData) {
+
         if (err) return handleError(err);
-            
-        var counter = notesObj.values;
-        //createContent remainig
-            
+
+        //map the notesObj.values for content values
+
+        notesObj.values.map(
+            (values) => {
+
+                var contentObjDatabase = {
+                    notesID: notesData._id,
+                    content: values.content
+
+                };
+
+                console.log('contentObjDatabase here :', contentObjDatabase)
+
+                var createContents = new contentTableModel(contentObjDatabase);
+                createContents.save(function (err, contentData) {
+                    if (err) return handleError(err);
+                    console.log(contentData)
+                });
+            }
+        )
+
     });
 
 }
 
 //testing purpose
-exports.findAccount = function (name) {
-    userTableModel.find({ name: name }, (err, doc) => {
-        if (err) throw err
-        console.log(doc);
-    })
-}
+// exports.findAccount = function (name) {
+//     userTableModel.find({ name: name }, (err, doc) => {
+//         if (err) throw err
+//         console.log(doc);
+//     })
+// }
 
 exports.checkCredentials = function (userObj) {
     return userTableModel.findOne({ emailId: userObj.emailId }).exec();
+}
+
+exports.findNotes = function (userId) {
+    //isDeleted: false soft delete
+    return notesTableModel.find({ uId: userId, isDeleted: false }, (err, doc) => {
+        if (err) throw err
+        console.log('find notes here', doc);
+    })
 }

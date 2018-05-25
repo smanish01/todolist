@@ -1,0 +1,27 @@
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/database');
+
+var notesTableSchema = new mongoose.Schema({
+
+    // id of the owner
+    uId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'userTableModel'
+    },
+    title: String,
+    date: { type: Date, default: Date.now() },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    //collaborators of the note
+    sharedWith: Array
+
+})
+
+var userTableModel = mongoose.model('userTableModel', userTableSchema);
+
+notesTableModel.find({ uId: userId }, (err, doc) => {
+        if (err) throw err
+        console.log('find notes here', doc);
+    })

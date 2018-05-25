@@ -42,7 +42,7 @@ app.post('/login', function (req, res) {
         .then((doc) => {
             if (bcrypt.compareSync(req.body.password, doc.password)) {
                 req.session.userId = doc._id;
-                console.log(req.session, req.sessionID, req.session._id);
+                console.log(req.session, req.sessionID, req.session.userId);
                 return res.status(200).json({ message: 'connected' })
 
                 // db.findSession(req.sessionID);
@@ -70,6 +70,32 @@ app.post('/addnotes', requiresLogin, function (req, res) {
     db.createNotes(req.body);
 })
 
+app.post('/viewnotes', requiresLogin, function (req, res) {
+    console.log('req id here',req.session.userId)
+    db.findNotes(req.session.userId)
+    .then(
+        (doc) => {
+            var docData = [];
+
+            //map the parameter required
+            doc.map(
+                (values) =>
+                {
+                    var docColumn = {
+                        _id : values._id,
+                        title : values.title
+                    }
+
+                    docData.push(docColumn);
+                }
+            )
+            console.log('docData here',docData);
+            return res.status(200).json( {message: docData})
+        } 
+         
+    )
+    .catch(err => console.log(err));
+})
 
 app.post('/logout', requiresLogin, function (req, res) {
     console.log('logout session id and email : ', req.sessionID, req.session.userId);
@@ -79,6 +105,7 @@ app.post('/logout', requiresLogin, function (req, res) {
 
 
 function requiresLogin(req, res, next) {
+    console.log(req.session, req.sessionID, req.session.userId);
     if ((req.session && req.sessionID) && req.session.userId)
         return next();
     else {
