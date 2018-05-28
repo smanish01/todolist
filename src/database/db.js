@@ -139,3 +139,10 @@ exports.findNotes = function (userId) {
         console.log('find notes here', doc);
     })
 }
+
+exports.findContent = function (notesId) {
+    return contentTableModel.find({notesID : notesId}, (err,doc) => {
+        if (err) throw err
+        console.log('find contents here', doc);
+    })
+}

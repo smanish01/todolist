@@ -36,7 +36,19 @@ app.post('/signup', function (req, res) {
     //db.findAccount(req.body.name); //testing purpose
 })
 
+app.post('/notes1', requiresLogin,function (req, res) {
+
+    console.log('notes req body',req.body.notesId);
+    db.findContent(req.body.notesId)
+    .then(
+        doc => {
+            return res.status(200).json( {message: doc})
+        }
+    )
+})
+
 app.post('/login', function (req, res) {
+
 
     db.checkCredentials(req.body)
         .then((doc) => {
@@ -44,13 +56,10 @@ app.post('/login', function (req, res) {
                 req.session.userId = doc._id;
                 console.log(req.session, req.sessionID, req.session.userId);
                 return res.status(200).json({ message: 'connected' })
-
-                // db.findSession(req.sessionID);
             }
         })
         .catch((err) => {
-            console.log(err);
-            res.status(400).json({ error: 'Wrong credentials' });
+            return res.status(200).json({message: 'wrong credentials' })
         })
 })
 
@@ -68,6 +77,13 @@ app.post('/addnotes', requiresLogin, function (req, res) {
     console.log(req.body);
     req.body.userId = req.session.userId;
     db.createNotes(req.body);
+})
+
+app.post('/checkuser', function (req, res) {
+
+    if ((req.session && req.sessionID) && req.session.userId)
+        return res.status(200).json({message : 'connected'})
+    
 })
 
 app.post('/viewnotes', requiresLogin, function (req, res) {
