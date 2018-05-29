@@ -27,6 +27,7 @@
     "gulp-plumber": "^1.2.0",
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.4",
+    "history": "^4.7.2",
     "lodash": "^4.17.10",
     "mongoose": "^5.1.0",
     "nodemon": "^1.17.4",

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import '../App.css';
 import axios from 'axios';
 import { Form, Icon, Input, Button, Checkbox } from 'antd';
-
+import { browserHistory } from 'history'
 const FormItem = Form.Item;
 
 class Login extends Component {
@@ -48,21 +48,30 @@ class Login extends Component {
   //   });
   // }
 
-  handleSubmit(e){
+  handleSubmit(e) {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
 
-      axios.post('http://localhost:3002/login', values)
-      .then(response => {
+        axios.post('http://localhost:3002/login', values)
+          .then(response => {
 
-        console.log(response)
-        if (response.data.message == 'connected')
-          alert('you are logged in');
-        if(response.data.message == 'wrong credentials')
-          alert('please enter correct credentials');
-      })
-      .catch(error => console.log(error));
+            console.log(response)
+            if (response.data.message == 'connected') {
+              alert('you are logged in');
+              console.log('before updatelog')
+              console.log('here is this props his',this.props.history);
+              this.props.updateLog(true);
+              console.log('after updatelog')
+              console.log('here is this props his',this.props);
+
+              this.props.history.push('/viewnotes');
+              
+            }
+            if (response.data.message == 'wrong credentials')
+              alert('please enter correct credentials');
+          })
+          .catch(error => console.log(error));
 
       }
     });
@@ -99,6 +108,8 @@ class Login extends Component {
 }
 
 export default Form.create()(Login);
+
+// export default withRouter(Login)
 
 
 

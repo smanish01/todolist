@@ -36,15 +36,15 @@ app.post('/signup', function (req, res) {
     //db.findAccount(req.body.name); //testing purpose
 })
 
-app.post('/notes1', requiresLogin,function (req, res) {
+app.post('/notes1', requiresLogin, function (req, res) {
 
-    console.log('notes req body',req.body.notesId);
+    console.log('notes req body', req.body.notesId);
     db.findContent(req.body.notesId)
-    .then(
-        doc => {
-            return res.status(200).json( {message: doc})
-        }
-    )
+        .then(
+            doc => {
+                return res.status(200).json({ message: doc })
+            }
+        )
 })
 
 app.post('/login', function (req, res) {
@@ -59,7 +59,7 @@ app.post('/login', function (req, res) {
             }
         })
         .catch((err) => {
-            return res.status(200).json({message: 'wrong credentials' })
+            return res.status(200).json({ message: 'wrong credentials' })
         })
 })
 
@@ -82,40 +82,53 @@ app.post('/addnotes', requiresLogin, function (req, res) {
 app.post('/checkuser', function (req, res) {
 
     if ((req.session && req.sessionID) && req.session.userId)
-        return res.status(200).json({message : 'connected'})
-    
+        return res.status(200).json({ message: 'connected' })
+
+})
+
+app.post('/updatenotes', function (req, res) {
+    console.log('updates here', req.body);
+
+    req.body.values.map(content => {
+        if (content.notesID)
+            db.updateContent(content)
+        else
+            db.createContentByUpdate(content, req.body.notesID)
+    })
+
 })
 
 app.post('/viewnotes', requiresLogin, function (req, res) {
-    console.log('req id here',req.session.userId)
+    console.log('req id here', req.session.userId)
     db.findNotes(req.session.userId)
-    .then(
-        (doc) => {
-            var docData = [];
+        .then(
+            (doc) => {
+                var docData = [];
 
-            //map the parameter required
-            doc.map(
-                (values) =>
-                {
-                    var docColumn = {
-                        _id : values._id,
-                        title : values.title
+                //map the parameter required
+                doc.map(
+                    (values) => {
+                        var docColumn = {
+                            _id: values._id,
+                            title: values.title
+                        }
+
+                        docData.push(docColumn);
                     }
+                )
+                console.log('docData here', docData);
+                return res.status(200).json({ message: docData })
+            }
 
-                    docData.push(docColumn);
-                }
-            )
-            console.log('docData here',docData);
-            return res.status(200).json( {message: docData})
-        } 
-         
-    )
-    .catch(err => console.log(err));
+        )
+        .catch(err => console.log(err));
 })
 
 app.post('/logout', requiresLogin, function (req, res) {
     console.log('logout session id and email : ', req.sessionID, req.session.userId);
     req.session.destroy();
+
+    return res.status(200).json({ message: 'logged out' })
 
 })
 

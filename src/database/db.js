@@ -146,3 +146,38 @@ exports.findContent = function (notesId) {
         console.log('find contents here', doc);
     })
 }
+
+exports.updateContent = function(contentObj) {
+
+    contentTableModel.findById(contentObj._id, function (err, content) {
+        if (err) return handleError(err);
+      
+        content.content = contentObj.content;
+        content.isChecked = contentObj.isChecked;
+        content.save(function (err, updatedContent) {
+          if (err) return handleError(err);
+        //   res.send(updatedTank);
+        console.log(updatedContent);
+        });
+      });
+
+} 
+
+exports.createContentByUpdate = function(contentObj, notesID) {
+
+    var contentObjDatabase = {
+        notesID: notesID,
+        content: contentObj.content,
+        isChecked: contentObj.isChecked
+
+    };
+
+    console.log('contentObjDatabase here :', contentObjDatabase)
+
+    var createContents = new contentTableModel(contentObjDatabase);
+    createContents.save(function (err, contentData) {
+        if (err) return handleError(err);
+        console.log(contentData)
+    });
+
+}

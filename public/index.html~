@@ -19,8 +19,7 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
   <title>React App</title>
-
-<script type="text/javascript" src="/assets/js/index.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/3.5.3/antd.css">
 </head>
 
 <body>
@@ -38,6 +37,7 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script type="text/javascript" src="/assets/js/bundle.js"></script>
 </body>
 
 </html>
