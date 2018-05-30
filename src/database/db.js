@@ -102,7 +102,8 @@ exports.createNotes = function (notesObj) {
 
                 var contentObjDatabase = {
                     notesID: notesData._id,
-                    content: values.content
+                    content: values.content,
+                    isChecked: values.isChecked
 
                 };
 
@@ -141,29 +142,41 @@ exports.findNotes = function (userId) {
 }
 
 exports.findContent = function (notesId) {
-    return contentTableModel.find({notesID : notesId}, (err,doc) => {
+    return contentTableModel.find({ notesID: notesId }, (err, doc) => {
         if (err) throw err
         console.log('find contents here', doc);
     })
 }
 
-exports.updateContent = function(contentObj) {
+// exports.updateContent = function(contentObj) {
 
-    contentTableModel.findById(contentObj._id, function (err, content) {
+//     contentTableModel.findById(contentObj._id, function (err, content) {
+//         if (err) return handleError(err);
+
+//         content.content = contentObj.content;
+//         content.isChecked = contentObj.isChecked;
+//         content.save(function (err, updatedContent) {
+//           if (err) return handleError(err);
+//         //   res.send(updatedTank);
+//         console.log(updatedContent);
+//         });
+//       });
+
+// } 
+
+exports.updateContent = function (contentObj) {
+
+    var query = { '_id': contentObj._id };
+    newContentObj = contentObj;
+    contentTableModel.findOneAndUpdate(query, newContentObj, { upsert: true }, function (err, doc) {
         if (err) return handleError(err);
-      
-        content.content = contentObj.content;
-        content.isChecked = contentObj.isChecked;
-        content.save(function (err, updatedContent) {
-          if (err) return handleError(err);
-        //   res.send(updatedTank);
-        console.log(updatedContent);
-        });
-      });
+        console.log(doc);
+        // return res.send("succesfully saved");
+    });
 
-} 
+}
 
-exports.createContentByUpdate = function(contentObj, notesID) {
+exports.createContentByUpdate = function (contentObj, notesID) {
 
     var contentObjDatabase = {
         notesID: notesID,
@@ -180,4 +193,19 @@ exports.createContentByUpdate = function(contentObj, notesID) {
         console.log(contentData)
     });
 
+}
+
+
+exports.deleteContent = function (id) {
+    contentTableModel.deleteOne({ _id: id }, function (err) {
+        if (err) return handleError(err);
+        // deleted at most one tank document
+    });
+}
+
+exports.deleteNotes = function (id) {
+    notesTableModel.deleteOne({ _id: id }, function (err) {
+        if (err) return handleError(err);
+        // deleted at most one tank document
+    });
 }

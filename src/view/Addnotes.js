@@ -4,23 +4,49 @@ import { Redirect } from 'react-router-dom'
 import '../App.css';
 import axios from 'axios';
 import _ from 'lodash';
-import { Form, Icon } from 'antd';
-
+import { Form, Icon, Button, Input, Checkbox, Row, Col,message } from 'antd';
+const FormItem = Form.Item;
 
 class Addnotes extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], notes: ''};
+        this.state = { values: [], notes: '' };
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.validate = this.validate.bind(this);
     }
 
     createUI() {
         return this.state.values.map((el, i) =>
             <div key={i}>
-                Task #{i + 1}: <input type="text" value={el.content || ''} style={{ margin: '10px' }} onChange={this.handleChange.bind(this, i)} />
-                <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i)} style={{ fontSize: 20, color: '#08c' }} />
+
+                <FormItem>
+                    {/* <Input type="checkbox" style={{ margin: '10px' }}
+             checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)} /> */}
+
+                    <Row>
+                        <Col span={1}><Checkbox checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)}>
+                        </Checkbox></Col>
+                        <Col span={1}> </Col>
+                        <Col span={22}><Input type="text" value={el.content || ''}
+                            onChange={this.handleChange.bind(this, i)}
+                            placeholder='Enter Task here'
+                            suffix={<Icon type='minus-circle-o'
+                                onClick={this.removeClick.bind(this, i)} style={{ fontSize: 20, color: '#08c' }} />} />
+                        </Col>
+                    </Row>
+
+
+
+                </FormItem>
             </div>
         )
+    }
+
+
+    handleCheckBox(i, event) {
+        let values = _.clone(this.state.values);
+        values[i].isChecked = !values[i].isChecked;
+        this.setState({ values });
     }
 
     handleChange(i, event) {
@@ -47,25 +73,54 @@ class Addnotes extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
+
+        this.validate();
+
+        // console.log(this.state);
         axios.post('http://localhost:3002/addnotes', this.state)
             .then(response => {
                 alert(response);
             })
-            .catch(error => {alert(error)});
+            .catch(error => { alert(error) });
+    }
+
+    validate() {
+        var counter = 0;
+
+        this.state.values.map(
+            content => {
+                if (content.length == 0)
+                    counter++;
+            }
+        )
+
+        if ((this.state.notes.length > 0) && (counter ==  0) ){
+            message.success('successfully submitted')
+            
+        }
+        else
+            message.warn('please fill all the text boxes')
+
     }
 
     render() {
+        const { getFieldDecorator } = this.props.form;
         return (
             <div id='middlePageDesign'>
-                <form onSubmit={this.handleSubmit} >
-                    Notes title: <input type="text" value={this.state.value} style={{ margin: '10px' }} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" required />
-                    <br />
+                <Form onSubmit={this.handleSubmit} >
+                    <FormItem>
+                        <Input type="text" value={this.state.notes} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" />
+                    </FormItem>
                     {this.createUI()}
-                    <div id='addFormButtons'>
-                        <input type="button" value="add task" onClick={this.addClick.bind(this)} />
-                        <input type="submit" value="Submit" />
-                    </div>
-                </form>
+                    <FormItem>
+                        <Button onClick={this.addClick.bind(this)} className="login-form-button">Add Task</Button>
+                    </FormItem>
+                    <FormItem>
+                        <Button type="primary" htmlType="submit" className="login-form-button">Submit</Button>
+                    </FormItem>
+                    {/* <input type="button" value="add task" onClick={this.addClick.bind(this)} />
+                        <input type="submit" value="Submit" /> */}
+                </Form>
             </div>
         );
     }

@@ -9,7 +9,7 @@ import axios from 'axios';
 class Notes1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], DeletedContent: [] };
+        this.state = { values: [], deletedContent: [] };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
@@ -73,9 +73,9 @@ class Notes1 extends React.Component {
             values.splice(i, 1);
             this.setState({ values });
             
-            let deleteArr = _.clone(this.state.DeletedContent);
+            let deleteArr = _.clone(this.state.deletedContent);
             deleteArr.push(id)
-            this.setState(prevState => ({DeletedContent : deleteArr}))
+            this.setState(prevState => ({deletedContent : deleteArr}))
 
 
             
@@ -96,14 +96,22 @@ class Notes1 extends React.Component {
 
         var noteObj = {
             values: this.state.values,
-            notesID: localStorage.getItem('notesId')
+            notesID: localStorage.getItem('notesId'),
+            deletedContent : this.state.deletedContent
         }
 
-        console.log(this.state.DeletedContent)
+        // console.log(this.state.deletedContent)
 
-        axios.post('http://localhost:3002/updatenotes', noteObj)
+        axios.put('http://localhost:3002/updatenotes', noteObj)
             .then(res => console.log(res))
             .catch(err => console.log(err))
+    }
+
+    handleDelete(event) {
+        event.preventDefault();
+        console.log(localStorage.getItem('notesId'))
+        axios.delete('http://localhost:3002/deletenotes/'+localStorage.getItem('notesId'))
+        .then(res => console.log(res))
     }
 
     render() {
@@ -115,6 +123,7 @@ class Notes1 extends React.Component {
                     <div id='addFormButtons'>
                         <input type="button" value="add task" onClick={this.addClick.bind(this)} />
                         <input type="submit" value="Submit" />
+                        <input type="button" value= "Delete" onClick={this.handleDelete.bind(this)}/>
                     </div>
                 </form>
             </div>

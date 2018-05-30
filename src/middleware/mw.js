@@ -57,6 +57,8 @@ app.post('/login', function (req, res) {
                 console.log(req.session, req.sessionID, req.session.userId);
                 return res.status(200).json({ message: 'connected' })
             }
+            else
+                return res.status(200).json({ message: 'wrong credentials' })
         })
         .catch((err) => {
             return res.status(200).json({ message: 'wrong credentials' })
@@ -86,8 +88,18 @@ app.post('/checkuser', function (req, res) {
 
 })
 
-app.post('/updatenotes', function (req, res) {
+app.delete('/deletenotes/:id', function (req, res) {
+
+    db.deleteNotes(req.params.id)
+
+})
+
+app.put('/updatenotes', function (req, res) {
     console.log('updates here', req.body);
+
+    req.body.deletedContent.map(
+        id => db.deleteContent(id)
+    )
 
     req.body.values.map(content => {
         if (content.notesID)
