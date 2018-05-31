@@ -56,7 +56,7 @@ class App extends Component {
 
   render() {
     return (
-      <Router>
+      <Router basename='/'>
         <div>
           {
             this.state.isLoggedIn ?
@@ -88,7 +88,7 @@ class App extends Component {
                       defaultSelectedKeys={['1']}
                       style={{ lineHeight: '64px' }}
                     >
-                      <Menu.Item key="1"><Link to={'/login'}>Login</Link></Menu.Item>
+                      <Menu.Item key="1"><Link to={'/'}>Login</Link></Menu.Item>
                       <Menu.Item key="2"><Link to={'/signup'}>Signup</Link></Menu.Item>
                     </Menu>
                   </Header>
@@ -105,7 +105,7 @@ class App extends Component {
             <Route exact path='/Notes1' component={Notes1} />
             <Route exact path='/Logout' render = { (props) => <Logout {...props} updateLog={this.updateLoggedInState.bind(this)} /> } /> */}
 
-            <Route exact path='/login' render={(props) => <Login {...props} updateLog={this.updateLoggedInState.bind(this)} />} />
+            <Route exact path='/' render={(props) => <Login {...props} updateLog={this.updateLoggedInState.bind(this)} />} />
             <Route exact path='/signup' render={(props) => <Signup {...props} />} />
             <Route exact path='/viewnotes' render={(props) => <Viewnotes {...props} />} />
             <Route exact path='/addnotes' render={(props) => <Addnotes {...props} />} />

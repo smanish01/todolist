@@ -39,12 +39,17 @@ app.post('/signup', function (req, res) {
 app.post('/notes1', requiresLogin, function (req, res) {
 
     console.log('notes req body', req.body.notesId);
-    db.findContent(req.body.notesId)
-        .then(
-            doc => {
-                return res.status(200).json({ message: doc })
-            }
-        )
+    db.findNotesTitle(req.body.notesId).then(
+        notesTitle => {
+            db.findContent(req.body.notesId)
+                .then(
+                    doc => {
+                        return res.status(200).json({ message: doc, message1: notesTitle })
+                    }
+                )
+        }
+    )
+
 })
 
 app.post('/login', function (req, res) {
@@ -64,6 +69,22 @@ app.post('/login', function (req, res) {
             return res.status(200).json({ message: 'wrong credentials' })
         })
 })
+
+app.post('/checkemailid', function (req, res) {
+    // console.log(req.body.emailId)
+    db.checkEmail(req.body.emailId)
+        .then(
+            
+            doc => {
+                if(doc == null)
+                    res.status(200).json({message: 'not there'});
+                else if(doc.emailId == req.body.emailId)
+                    res.status(200).json({message: 'already'});
+            }
+
+        )
+})
+
 
 /* testing purpose
 app.get('/hello', (req, res) => {
@@ -108,6 +129,7 @@ app.put('/updatenotes', function (req, res) {
             db.createContentByUpdate(content, req.body.notesID)
     })
 
+    db.updateNotesTitle(req.body.notesID, req.body.notesTitle)
 })
 
 app.post('/viewnotes', requiresLogin, function (req, res) {
@@ -115,6 +137,7 @@ app.post('/viewnotes', requiresLogin, function (req, res) {
     db.findNotes(req.session.userId)
         .then(
             (doc) => {
+                console.log('date doc here', doc)
                 var docData = [];
 
                 //map the parameter required
@@ -122,8 +145,8 @@ app.post('/viewnotes', requiresLogin, function (req, res) {
                     (values) => {
                         var docColumn = {
                             _id: values._id,
-                            title: values.title
-                        }
+                            title: values.title,
+                            date: values.createdAt                        }
 
                         docData.push(docColumn);
                     }
@@ -144,6 +167,11 @@ app.post('/logout', requiresLogin, function (req, res) {
 
 })
 
+app.all('*',function(req,res){
+    let indexPath = path.resolve(__dirname+'/../../public/index.html')
+    res.sendFile(indexPath)
+})
+
 
 function requiresLogin(req, res, next) {
     console.log(req.session, req.sessionID, req.session.userId);
@@ -156,7 +184,6 @@ function requiresLogin(req, res, next) {
 
     }
 };
-
 
 app.listen(3002, function () {
     console.log('Server started')

@@ -6,40 +6,28 @@ const saltRounds = 10;
 //defining the schema
 var userTableSchema = new mongoose.Schema({
 
-    userName: {
-        type: String,
-        unique: true,
-        required: true,
-        trim: true
-    },
+    userName: String,
     name: String,
     emailId: {
         type: String,
-        unique: true,
-        required: true,
-        trim: true
+        unique: true
     },
     // 'password' will be hashed 
-    password: {
-        type: String,
-        required: true,
-    },
+    password: String,
     profilePhoto: Buffer
 })
 
 var notesTableSchema = new mongoose.Schema({
 
     // id of the owner
-    uId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'userTableModel'
-    },
+    uId: String,
     title: String,
-    date: { type: Date, default: Date.now() },
-    isDeleted: {
-        type: Boolean,
-        default: false
+    createdAt: {
+        type: Date,
+        default : Date.now()
     },
+    updatedAt : Date,
+    deletedAt : Date,
     //collaborators of the note
     sharedWith: Array
 
@@ -48,10 +36,7 @@ var notesTableSchema = new mongoose.Schema({
 var contentTableSchema = new mongoose.Schema({
 
     // the id of the note it is present in
-    notesID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'notesTableModel'
-    },
+    notesID: String,
     content: String,
     isChecked: {
         type: Boolean,
@@ -73,7 +58,7 @@ exports.createAccount = function (userObj) {
     // console.log(userObj);
     var createAccount = new userTableModel(userObj);
     createAccount.save(function (err) {
-        if (err) return handleError(err);
+        if (err) throw err
         // saved!
     });
 
@@ -86,14 +71,15 @@ exports.createNotes = function (notesObj) {
 
     var notesObjDatabase = {
         uId: notesObj.userId,
-        title: notesObj.notes
+        title: notesObj.notes,
+        
     };
 
 
     var createNotes = new notesTableModel(notesObjDatabase);
     createNotes.save(function (err, notesData) {
 
-        if (err) return handleError(err);
+        if (err) throw err
 
         //map the notesObj.values for content values
 
@@ -142,9 +128,26 @@ exports.findNotes = function (userId) {
 }
 
 exports.findContent = function (notesId) {
+
     return contentTableModel.find({ notesID: notesId }, (err, doc) => {
         if (err) throw err
         console.log('find contents here', doc);
+    })
+}
+
+exports.findNotesTitle = function(notesId){
+
+    return notesTableModel.findById(notesId, (err, doc) => {
+        if (err) throw err
+        console.log('find notes here', doc);
+    })
+}
+
+exports.updateNotesTitle = function(notesId, notesTitle) {
+    var query = { '_id': notesId };
+    notesTableModel.findByIdAndUpdate(query,{title : notesTitle},  (err, doc) => {
+        if (err) throw err
+        console.log('update notes here', doc);
     })
 }
 
@@ -169,7 +172,7 @@ exports.updateContent = function (contentObj) {
     var query = { '_id': contentObj._id };
     newContentObj = contentObj;
     contentTableModel.findOneAndUpdate(query, newContentObj, { upsert: true }, function (err, doc) {
-        if (err) return handleError(err);
+        if (err) throw err
         console.log(doc);
         // return res.send("succesfully saved");
     });
@@ -189,7 +192,7 @@ exports.createContentByUpdate = function (contentObj, notesID) {
 
     var createContents = new contentTableModel(contentObjDatabase);
     createContents.save(function (err, contentData) {
-        if (err) return handleError(err);
+        if (err) throw err
         console.log(contentData)
     });
 
@@ -198,14 +201,18 @@ exports.createContentByUpdate = function (contentObj, notesID) {
 
 exports.deleteContent = function (id) {
     contentTableModel.deleteOne({ _id: id }, function (err) {
-        if (err) return handleError(err);
-        // deleted at most one tank document
+        if (err) throw err
+        // deleted at most one document
     });
 }
 
 exports.deleteNotes = function (id) {
-    notesTableModel.deleteOne({ _id: id }, function (err) {
-        if (err) return handleError(err);
-        // deleted at most one tank document
+    notesTableModel.findOneAndUpdate({ _id: id , deletedAt : null},{deletedAt: Date.now()} ,function (err) {
+        if (err) throw err
+        // deleted at most one document
     });
+}
+
+exports.checkEmail= function(emailId) {
+    return userTableModel.findOne({ emailId: emailId }).exec();
 }

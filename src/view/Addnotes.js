@@ -4,7 +4,7 @@ import { Redirect } from 'react-router-dom'
 import '../App.css';
 import axios from 'axios';
 import _ from 'lodash';
-import { Form, Icon, Button, Input, Checkbox, Row, Col,message } from 'antd';
+import { Form, Icon, Button, Input, Checkbox, Row, Col, message } from 'antd';
 const FormItem = Form.Item;
 
 class Addnotes extends React.Component {
@@ -24,7 +24,7 @@ class Addnotes extends React.Component {
              checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)} /> */}
 
                     <Row>
-                        <Col span={1}><Checkbox checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)}>
+                        <Col span={1}><Checkbox onChange={this.handleCheckBox.bind(this, i)}>
                         </Checkbox></Col>
                         <Col span={1}> </Col>
                         <Col span={22}><Input type="text" value={el.content || ''}
@@ -74,32 +74,42 @@ class Addnotes extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
 
-        this.validate();
+        var validateState = this.validate();
 
         // console.log(this.state);
-        axios.post('http://localhost:3002/addnotes', this.state)
-            .then(response => {
-                alert(response);
-            })
-            .catch(error => { alert(error) });
+
+        if (validateState == true) {
+            axios.post('http://localhost:3002/addnotes', this.state)
+                .then(response => {
+                    alert(response);
+                })
+                .catch(error => { alert(error) });
+            message.success('successfully submitted')
+
+            this.props.history.push('/viewnotes');
+        }
+        else
+            message.warn('please fill all the text boxes')
+
     }
 
     validate() {
         var counter = 0;
 
         this.state.values.map(
+
             content => {
-                if (content.length == 0)
+                console.log(content)
+                if (content.content.length == 0)
                     counter++;
             }
         )
 
-        if ((this.state.notes.length > 0) && (counter ==  0) ){
-            message.success('successfully submitted')
-            
-        }
+        if ((this.state.notes.length > 0) && (counter == 0))
+            return true;
         else
-            message.warn('please fill all the text boxes')
+            return false;
+
 
     }
 
@@ -112,11 +122,17 @@ class Addnotes extends React.Component {
                         <Input type="text" value={this.state.notes} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" />
                     </FormItem>
                     {this.createUI()}
+
                     <FormItem>
-                        <Button onClick={this.addClick.bind(this)} className="login-form-button">Add Task</Button>
-                    </FormItem>
-                    <FormItem>
-                        <Button type="primary" htmlType="submit" className="login-form-button">Submit</Button>
+                        <Row>
+                            <Col span={11}>
+                                <Button onClick={this.addClick.bind(this)} className="login-form-button">Add Task</Button>
+                            </Col>
+                            <Col span={2}></Col>
+                            <Col span={11}>
+                                <Button type="primary" htmlType="submit" className="login-form-button">Submit</Button>
+                            </Col>
+                        </Row>
                     </FormItem>
                     {/* <input type="button" value="add task" onClick={this.addClick.bind(this)} />
                         <input type="submit" value="Submit" /> */}

@@ -2,28 +2,40 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import '../App.css';
 import axios from 'axios';
-import { Form, Input, Tooltip, Icon, Cascader, Select, Row, Col, Checkbox, Button, AutoComplete } from 'antd';
+import { Form, Input, Tooltip, Icon, Cascader, Select, Row, Col, Checkbox, Button, AutoComplete, message } from 'antd';
 const FormItem = Form.Item;
 
 class Signup extends React.Component {
 
-    constructor(props){
+    constructor(props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
-      }
+    }
 
-    handleSubmit(e){
-        console.log(e);
+    handleSubmit(e) {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                axios.post('http://localhost:3002/signup', values) 
-                .then(response => console.log(response))
-                .catch(error => console.log(error));
+                axios.post('http://localhost:3002/checkemailid', { emailId: values.emailId })
+                    .then(res => {
+
+                        console.log(res.data.message);
+
+                        if (res.data.message == 'already')
+                            message.warn('Email ID is already registered please enter new Email ID');
+                        else if(res.data.message == 'not there'){
+                            axios.post('http://localhost:3002/signup', values)
+                                .then(response => console.log(response))
+                                .catch(error => console.log(error));
+                            message.success('Signed Up successfully!')
+                            this.props.history.push('/')
+                        }
+
+                    })
             }
         });
     }
-    
+
     render() {
         const { getFieldDecorator } = this.props.form;
         return (

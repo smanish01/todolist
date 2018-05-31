@@ -23,7 +23,7 @@ class Logout extends React.Component {
                 if (response.data.message == 'logged out') {
                     message.success('You are logged out');
                     this.props.updateLog(false);
-                    this.props.history.push('/login');
+                    this.props.history.push('/');
                 }
             })
             .catch(error => alert(error));
