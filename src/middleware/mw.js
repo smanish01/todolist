@@ -36,12 +36,12 @@ app.post('/signup', function (req, res) {
     //db.findAccount(req.body.name); //testing purpose
 })
 
-app.post('/notes1', requiresLogin, function (req, res) {
+app.post('/notes1/:notesId', requiresLogin, function (req, res) {
 
-    console.log('notes req body', req.body.notesId);
-    db.findNotesTitle(req.body.notesId).then(
+    console.log('notes req params here', req.params.notesId);
+    db.findNotesTitle(req.params.notesId).then(
         notesTitle => {
-            db.findContent(req.body.notesId)
+            db.findContent(req.params.notesId)
                 .then(
                     doc => {
                         return res.status(200).json({ message: doc, message1: notesTitle })
@@ -51,6 +51,32 @@ app.post('/notes1', requiresLogin, function (req, res) {
     )
 
 })
+
+
+app.get('/userinfo', requiresLogin, function (req, res) {
+
+    db.findUserInfo(req.session.userId)
+        .then(
+            doc => {
+                if (doc == null)
+                    return res.status(400).json({ message: 'user info not found' })
+                else {
+
+                    console.log(doc);
+
+                    var userDoc = {
+                        name: doc.name,
+                        emailId: doc.emailId,
+                        userName: doc.userName
+                    }
+
+                    return res.status(200).json({ message: userDoc })
+                }
+            }
+        )
+})
+
+
 
 app.post('/login', function (req, res) {
 
@@ -74,12 +100,12 @@ app.post('/checkemailid', function (req, res) {
     // console.log(req.body.emailId)
     db.checkEmail(req.body.emailId)
         .then(
-            
+
             doc => {
-                if(doc == null)
-                    res.status(200).json({message: 'not there'});
-                else if(doc.emailId == req.body.emailId)
-                    res.status(200).json({message: 'already'});
+                if (doc == null)
+                    res.status(200).json({ message: 'not there' });
+                else if (doc.emailId == req.body.emailId)
+                    res.status(200).json({ message: 'already' });
             }
 
         )
@@ -146,7 +172,9 @@ app.post('/viewnotes', requiresLogin, function (req, res) {
                         var docColumn = {
                             _id: values._id,
                             title: values.title,
-                            date: values.createdAt                        }
+                            createdAt: values.createdAt,
+                            updatedAt: values.updatedAt
+                        }
 
                         docData.push(docColumn);
                     }
@@ -167,8 +195,36 @@ app.post('/logout', requiresLogin, function (req, res) {
 
 })
 
-app.all('*',function(req,res){
-    let indexPath = path.resolve(__dirname+'/../../public/index.html')
+app.post('/changepassword', requiresLogin, function (req, res) {
+
+    var userObj = req.body.userInfo
+
+    var currentPassword = req.body.values.currentPassword
+
+    var newPassword = req.body.values.newPassword
+
+    db.checkCredentials(userObj)
+        .then((doc) => {
+            if (bcrypt.compareSync(currentPassword, doc.password)) {
+                
+                db.changePassword(req.session.userId,newPassword)
+                .then(doc =>
+                {
+                    if(doc != null)
+                    return res.status(200).json({message: 'changed'})
+                })
+            }
+            else
+                return res.status(200).json({ message: 'not changed' })
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+
+})
+
+app.all('*', function (req, res) {
+    let indexPath = path.resolve(__dirname + '/../../public/index.html')
     res.sendFile(indexPath)
 })
 

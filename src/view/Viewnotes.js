@@ -10,6 +10,7 @@ import { Table, Input, Button, Popconfirm, message } from 'antd';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import axios from 'axios';
 const dateFormat = require('dateformat');
+const DateDiff = require('date-diff');
 const gridStyle = {
     width: '25%',
     textAlign: 'center',
@@ -23,6 +24,7 @@ class ViewNotes extends React.Component {
             notesList: [],
             noNotesToDisplay: false,
         };
+
     }
 
     deleteNotes(id) {
@@ -88,8 +90,8 @@ class ViewNotes extends React.Component {
                                 <Link to={'/addnotes'}>
                                     <Icon type="plus-circle-o" style={{ fontSize: 150, color: '#08c' }} />
                                 </Link>
-                                    <h2 style={{ color: '#08c' }}>Click on add icon <br/> to add notes</h2>
-                        
+                                <h2 style={{ color: '#08c' }}>Click on add icon <br /> to add notes</h2>
+
 
                             </div>
                         )
@@ -134,7 +136,21 @@ class ViewNotes extends React.Component {
                                                 <Col span={9}>
                                                 </Col>
                                             </Row>
-                                            {dateFormat(notes.date,"dddd, mmmm dS, yyyy, h:MM")}
+
+                                            <Row>
+                                                {
+                                                    (this.state.notesList[index].createdAt === this.state.notesList[index].updatedAt)
+                                                    ?
+                                                    (
+                                                       <div> Created At : {dateFormat(this.state.notesList[index].createdAt,'dddd, mmmm dS, yyyy, h:MM')}</div> 
+                                                    )
+                                                    :
+                                                    (
+                                                        <div> Updated At : {dateFormat(this.state.notesList[index].updatedAt,'dddd, mmmm dS, yyyy, h:MM')}</div>
+                                                    )
+                                                }
+                                            </Row>
+
                                         </Card.Grid>
                                     </div>
                                 )

@@ -16,14 +16,16 @@ class Signup extends React.Component {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
+
+                if(values.password === values.confirmPassword){
+
                 axios.post('http://localhost:3002/checkemailid', { emailId: values.emailId })
                     .then(res => {
 
-                        console.log(res.data.message);
 
                         if (res.data.message == 'already')
                             message.warn('Email ID is already registered please enter new Email ID');
-                        else if(res.data.message == 'not there'){
+                        else if (res.data.message == 'not there') {
                             axios.post('http://localhost:3002/signup', values)
                                 .then(response => console.log(response))
                                 .catch(error => console.log(error));
@@ -33,8 +35,15 @@ class Signup extends React.Component {
 
                     })
             }
-        });
+            else
+                message.warn('Your password and confirm password is not matching')
+        }
+
+        
+        }
+    );
     }
+
 
     render() {
         const { getFieldDecorator } = this.props.form;
@@ -69,6 +78,15 @@ class Signup extends React.Component {
                             <Input prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="Password" />
                         )}
                     </FormItem>
+                        
+                    <FormItem>
+                        {getFieldDecorator('confirmPassword', {
+                            rules: [{ required: true, message: 'Please confirm your Password!' }],
+                        })(
+                            <Input prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder=" Confirm Password" />
+                        )}
+                    </FormItem>
+
 
                     <FormItem>
                         <Button type="primary" htmlType="submit" className="login-form-button">

@@ -24,10 +24,10 @@ var notesTableSchema = new mongoose.Schema({
     title: String,
     createdAt: {
         type: Date,
-        default : Date.now()
+        default: Date.now()
     },
-    updatedAt : Date,
-    deletedAt : Date,
+    updatedAt: Date,
+    deletedAt: Date,
     //collaborators of the note
     sharedWith: Array
 
@@ -54,7 +54,7 @@ var contentTableModel = mongoose.model('contentTableModel', contentTableSchema);
 
 exports.createAccount = function (userObj) {
 
-    userObj.password = bcrypt.hashSync(userObj.password, saltRounds);;
+    userObj.password = bcrypt.hashSync(userObj.password, saltRounds);
     // console.log(userObj);
     var createAccount = new userTableModel(userObj);
     createAccount.save(function (err) {
@@ -72,7 +72,9 @@ exports.createNotes = function (notesObj) {
     var notesObjDatabase = {
         uId: notesObj.userId,
         title: notesObj.notes,
-        
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+
     };
 
 
@@ -120,8 +122,8 @@ exports.checkCredentials = function (userObj) {
 }
 
 exports.findNotes = function (userId) {
-    //isDeleted: false soft delete
-    return notesTableModel.find({ uId: userId, isDeleted: false }, (err, doc) => {
+
+    return notesTableModel.find({ uId: userId, deletedAt: null }, (err, doc) => {
         if (err) throw err
         console.log('find notes here', doc);
     })
@@ -135,7 +137,7 @@ exports.findContent = function (notesId) {
     })
 }
 
-exports.findNotesTitle = function(notesId){
+exports.findNotesTitle = function (notesId) {
 
     return notesTableModel.findById(notesId, (err, doc) => {
         if (err) throw err
@@ -143,9 +145,9 @@ exports.findNotesTitle = function(notesId){
     })
 }
 
-exports.updateNotesTitle = function(notesId, notesTitle) {
+exports.updateNotesTitle = function (notesId, notesTitle) {
     var query = { '_id': notesId };
-    notesTableModel.findByIdAndUpdate(query,{title : notesTitle},  (err, doc) => {
+    notesTableModel.findByIdAndUpdate(query, { title: notesTitle, updatedAt: Date.now() }, (err, doc) => {
         if (err) throw err
         console.log('update notes here', doc);
     })
@@ -207,12 +209,24 @@ exports.deleteContent = function (id) {
 }
 
 exports.deleteNotes = function (id) {
-    notesTableModel.findOneAndUpdate({ _id: id , deletedAt : null},{deletedAt: Date.now()} ,function (err) {
+    notesTableModel.findOneAndUpdate({ _id: id, deletedAt: null }, { deletedAt: Date.now() }, function (err) {
         if (err) throw err
         // deleted at most one document
     });
 }
 
-exports.checkEmail= function(emailId) {
+exports.findUserInfo = function (id) {
+    return userTableModel.findOne({ _id: id }).exec();
+}
+
+exports.changePassword = function (id, newPassword) {
+
+    return userTableModel.findOneAndUpdate(id, { password: bcrypt.hashSync(newPassword, saltRounds) }, function (err, doc) {
+        console.log(doc);
+    })
+
+}
+
+exports.checkEmail = function (emailId) {
     return userTableModel.findOne({ emailId: emailId }).exec();
 }

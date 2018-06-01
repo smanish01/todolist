@@ -15,7 +15,8 @@ class Notes1 extends React.Component {
 
     componentWillMount() {
 
-        axios.post('http://localhost:3002/notes1', { notesId: localStorage.getItem('notesId') })
+        console.log(localStorage.getItem('notesId'))
+        axios.post('http://localhost:3002/notes1/' + localStorage.getItem('notesId'))
             .then(res => {
                 console.log('con here', res.data.message)
                 console.log('notes title here', res.data.message1.title);

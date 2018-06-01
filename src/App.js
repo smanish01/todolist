@@ -5,7 +5,7 @@ import Signup from './view/Signup';
 import Viewnotes from './view/Viewnotes';
 import Notes1 from './view/Notes1';
 import Addnotes from './view/Addnotes';
-import Logout from './view/Logout';
+import Profile from './view/Profile';
 import { Layout, Menu, Breadcrumb, Icon,Button,message } from 'antd';
 import axios from 'axios';
 const { Header, Content, Footer } = Layout;
@@ -33,25 +33,29 @@ class App extends Component {
           this.setState({ isLoggedIn: true })
         }
         else
-          message.error('you are not connected, please login');
+        message.error('you are not connected, please login');
       })
       .catch(err => console.log(err))
   }
 
 
-  // logout() {
+  logout() {
 
-  //   // event.preventDefault();
-  //   axios.post('http://localhost:3002/logout')
-  //     .then(response => {
+    // event.preventDefault();
+    axios.post('http://localhost:3002/logout')
+      .then(response => {
 
-  //       if (response.data.message == 'logged out') {
-  //         this.updateLoggedInState(false);
-  //         window.location = 'http://localhost:3002/login';
-  //       }
-  //     })
-  //     .catch(error => alert(error));
-  // }
+        if (response.data.message == 'logged out') {
+
+          this.updateLoggedInState(false);
+          
+          message.success('You are logged out');
+
+          window.location = 'http://localhost:3002/';
+        }
+      })
+      .catch(error => alert(error));
+  }
 
 
   render() {
@@ -70,9 +74,10 @@ class App extends Component {
                       style={{ lineHeight: '64px' }}
                     >
                       <Menu.Item key="1"><Link to={'/viewnotes'}>Viewnotes</Link></Menu.Item>
-                      <Menu.Item key="2"><Link to={'/addnotes'}><Icon type="plus-circle" /></Link></Menu.Item>
-                      {/* <Menu.Item key="3"><div onClick={this.logout.bind(this)}> Logout</div></Menu.Item> */}
-                      <Menu.Item key="3"><Link to={'/logout'}>Logout</Link></Menu.Item>
+                      <Menu.Item key="2"><Link to={'/addnotes'}>Addnotes</Link></Menu.Item>
+                      <Menu.Item key="3"><Link to={'/profile'}>Profile</Link></Menu.Item>
+                      <Menu.Item key="4"><div onClick={this.logout.bind(this)}> Logout</div></Menu.Item>
+                      
                     </Menu>
                   </Header>
                 </Layout>
@@ -110,7 +115,7 @@ class App extends Component {
             <Route exact path='/viewnotes' render={(props) => <Viewnotes {...props} />} />
             <Route exact path='/addnotes' render={(props) => <Addnotes {...props} />} />
             <Route exact path='/notes1' render={(props) => <Notes1 {...props} />} />
-            <Route exact path='/logout' render={(props) => <Logout {...props} updateLog={this.updateLoggedInState.bind(this)} />} />
+            <Route exact path='/profile' render={(props) =>  <Profile {...props} />} />
 
           </Switch>
         </div>
