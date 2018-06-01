@@ -90,8 +90,9 @@ class ViewNotes extends React.Component {
                                 <Link to={'/addnotes'}>
                                     <Icon type="plus-circle-o" style={{ fontSize: 150, color: '#08c' }} />
                                 </Link>
-                                <h2 style={{ color: '#08c' }}>Click on add icon <br /> to add notes</h2>
-
+                                <div id='middlePageDesignIconText'>
+                                    <h2 style={{ color: '#08c' }}>Click on add icon to add notes</h2>
+                                </div>
 
                             </div>
                         )
@@ -140,14 +141,14 @@ class ViewNotes extends React.Component {
                                             <Row>
                                                 {
                                                     (this.state.notesList[index].createdAt === this.state.notesList[index].updatedAt)
-                                                    ?
-                                                    (
-                                                       <div> Created At : {dateFormat(this.state.notesList[index].createdAt,'dddd, mmmm dS, yyyy, h:MM')}</div> 
-                                                    )
-                                                    :
-                                                    (
-                                                        <div> Updated At : {dateFormat(this.state.notesList[index].updatedAt,'dddd, mmmm dS, yyyy, h:MM')}</div>
-                                                    )
+                                                        ?
+                                                        (
+                                                            <div> Created At : {dateFormat(this.state.notesList[index].createdAt, 'dddd, mmmm dS, yyyy, h:MM')}</div>
+                                                        )
+                                                        :
+                                                        (
+                                                            <div> Updated At : {dateFormat(this.state.notesList[index].updatedAt, 'dddd, mmmm dS, yyyy, h:MM')}</div>
+                                                        )
                                                 }
                                             </Row>
 

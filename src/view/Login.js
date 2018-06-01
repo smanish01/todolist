@@ -12,6 +12,8 @@ class Login extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+
+
   /* testing purpose
   getData(){
     fetch('http://localhost:3002/hello?' + Date.now(),{

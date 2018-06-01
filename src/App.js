@@ -6,7 +6,7 @@ import Viewnotes from './view/Viewnotes';
 import Notes1 from './view/Notes1';
 import Addnotes from './view/Addnotes';
 import Profile from './view/Profile';
-import { Layout, Menu, Breadcrumb, Icon,Button,message } from 'antd';
+import { Layout, Menu, Breadcrumb, Icon, Button, message, Sider } from 'antd';
 import axios from 'axios';
 const { Header, Content, Footer } = Layout;
 
@@ -33,7 +33,7 @@ class App extends Component {
           this.setState({ isLoggedIn: true })
         }
         else
-        message.error('you are not connected, please login');
+          message.error('you are not connected, please login');
       })
       .catch(err => console.log(err))
   }
@@ -48,7 +48,7 @@ class App extends Component {
         if (response.data.message == 'logged out') {
 
           this.updateLoggedInState(false);
-          
+
           message.success('You are logged out');
 
           window.location = 'http://localhost:3002/';
@@ -77,7 +77,6 @@ class App extends Component {
                       <Menu.Item key="2"><Link to={'/addnotes'}>Addnotes</Link></Menu.Item>
                       <Menu.Item key="3"><Link to={'/profile'}>Profile</Link></Menu.Item>
                       <Menu.Item key="4"><div onClick={this.logout.bind(this)}> Logout</div></Menu.Item>
-                      
                     </Menu>
                   </Header>
                 </Layout>
@@ -115,7 +114,7 @@ class App extends Component {
             <Route exact path='/viewnotes' render={(props) => <Viewnotes {...props} />} />
             <Route exact path='/addnotes' render={(props) => <Addnotes {...props} />} />
             <Route exact path='/notes1' render={(props) => <Notes1 {...props} />} />
-            <Route exact path='/profile' render={(props) =>  <Profile {...props} />} />
+            <Route exact path='/profile' render={(props) => <Profile {...props} />} />
 
           </Switch>
         </div>

@@ -107,7 +107,7 @@ class Profile extends React.Component {
     render() {
         return (
             <div id='middlePageDesign'>
-                <Card >
+                <Card title="User Information">
                     <Row>
                         <Col span={11}>
                             <big>Name</big>

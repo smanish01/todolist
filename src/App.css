@@ -55,6 +55,16 @@
   left: 55%;
 }
 
+#middlePageDesignIconText {
+  position: absolute;
+  height: 200px;
+  width: 400px;
+  margin: -100px 0 0 -200px;
+  top: 130%;
+  left: 35%;
+}
+
+
 
 .nav {
   height: 30px;
