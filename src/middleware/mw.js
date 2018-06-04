@@ -199,6 +199,8 @@ app.post('/changepassword', requiresLogin, function (req, res) {
 
     var userObj = req.body.userInfo
 
+    console.log(userObj)
+
     var currentPassword = req.body.values.currentPassword
 
     var newPassword = req.body.values.newPassword

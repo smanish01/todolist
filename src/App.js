@@ -29,7 +29,7 @@ class App extends Component {
     axios.post('http://localhost:3002/checkuser')
       .then(res => {
         if (res.data.message == 'connected') {
-          message.success('you are connected');
+          // message.success('you are connected');
           this.setState({ isLoggedIn: true })
         }
         else
@@ -47,11 +47,14 @@ class App extends Component {
 
         if (response.data.message == 'logged out') {
 
-          this.updateLoggedInState(false);
-
           message.success('You are logged out');
 
-          window.location = 'http://localhost:3002/';
+          setTimeout(
+            () => {
+
+              this.updateLoggedInState(false);
+              window.location = 'http://localhost:3002/';
+            }, 1500);
         }
       })
       .catch(error => alert(error));
@@ -70,7 +73,7 @@ class App extends Component {
                     <Menu
                       theme="dark"
                       mode="horizontal"
-                      defaultSelectedKeys={['1']}
+                      // defaultSelectedKeys={['1']}
                       style={{ lineHeight: '64px' }}
                     >
                       <Menu.Item key="1"><Link to={'/viewnotes'}>Viewnotes</Link></Menu.Item>

@@ -59,9 +59,9 @@ class Signup extends React.Component {
                     </FormItem>
                     <FormItem>
                         {getFieldDecorator('emailId', {
-                            rules: [{ required: true, message: 'Please input your email!' }],
+                            rules: [ { required: true, message: 'Please input your email!' }],
                         })(
-                            <Input prefix={<Icon type="mail" style={{ color: 'rgba(0,0,0,.25)' }} />} type="email" placeholder="Email" />
+                            <Input prefix={<Icon type="mail" style={{ color: 'rgba(0,0,0,.25)' }} />} type='email' placeholder="Email" />
                         )}
                     </FormItem>
                     <FormItem>

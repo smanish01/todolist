@@ -2,21 +2,21 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import '../App.css';
 import _ from 'lodash';
-import { Form, Icon, Button, Input, Checkbox, Row, Col, message } from 'antd';
+import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Card } from 'antd';
 import axios from 'axios';
 const FormItem = Form.Item;
 
 class Notes1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], deletedContent: [], notes: '' };
+        this.state = { values: [], deletedContent: [], notes: '', editable: false };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentWillMount() {
 
         console.log(localStorage.getItem('notesId'))
-        axios.post('http://localhost:3002/notes1/' + localStorage.getItem('notesId'))
+        axios.post('http://localhost:3002/notes1/'+localStorage.getItem('notesId'))
             .then(res => {
                 console.log('con here', res.data.message)
                 console.log('notes title here', res.data.message1.title);
@@ -25,6 +25,7 @@ class Notes1 extends React.Component {
             .catch(err => console.log(err));
 
     }
+
 
 
     // createNotes() {
@@ -53,7 +54,7 @@ class Notes1 extends React.Component {
                             onChange={this.handleChange.bind(this, i)}
                             placeholder='Enter Task here'
                             suffix={<Icon type='minus-circle-o'
-                                onClick={this.removeClick.bind(this, i,el._id)} style={{ fontSize: 20, color: '#08c' }} />} />
+                                onClick={this.removeClick.bind(this, i, el._id)} style={{ fontSize: 20, color: '#08c' }} />} />
                         </Col>
                     </Row>
 
@@ -166,6 +167,34 @@ class Notes1 extends React.Component {
 
     }
 
+    createNotes() {
+
+        return this.state.values.map((el, i) =>
+
+            <div key={i}>
+                <Row>
+                    <Col span={11}>
+                        <center>
+                            {el.content}
+                        </center>
+                    </Col>
+                    <Col span={2}>
+                        :
+                    </Col>
+                    <Col span={11}>
+                        <center>
+                            <Checkbox defaultChecked={el.isChecked} disabled />
+                        </center>
+                    </Col>
+                </Row>
+            </div>
+        )
+    }
+
+    editable(value) {
+        this.setState({ editable: value });
+    }
+
     handleDelete(event) {
         event.preventDefault();
         console.log(localStorage.getItem('notesId'))
@@ -178,28 +207,67 @@ class Notes1 extends React.Component {
 
     render() {
         return (
-            <div id='middlePageDesign'>
-                <Form onSubmit={this.handleSubmit} >
-                    <FormItem>
-                        <Input type="text" value={this.state.notes} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" />
-                    </FormItem>
-                    {this.createUI()}
-                    <FormItem>
-                        <Row>
-                            <Col span={11}>
-                                <Button onClick={this.addClick.bind(this)} className="login-form-button">Add Task</Button>
-                            </Col>
-                            <Col span={2}></Col>
-                            <Col span={11}>
-                                <Button type="primary" htmlType="submit" className="login-form-button">Update</Button>
-                            </Col>
-                        </Row>
-                    </FormItem>
-                    <FormItem>
-                        <Button type='danger' onClick={this.handleDelete.bind(this)} className="login-form-button">Delete Notes</Button>
-                    </FormItem>
-                </Form>
+
+            <div>
+                {
+
+                    this.state.editable
+                        ?
+                        (
+                            <div id='middlePageDesign'>
+                                <Form onSubmit={this.handleSubmit} >
+                                    <FormItem>
+                                        <Input type="text" value={this.state.notes} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" />
+                                    </FormItem>
+                                    {this.createUI()}
+                                    <FormItem>
+                                        <Row>
+                                            <Col span={11}>
+                                                <Button onClick={this.addClick.bind(this)} className="login-form-button">Add Task</Button>
+                                            </Col>
+                                            <Col span={2}></Col>
+                                            <Col span={11}>
+                                                <Button type="primary" htmlType="submit" className="login-form-button">Update</Button>
+                                            </Col>
+                                        </Row>
+                                    </FormItem>
+                                    <FormItem>
+                                        <Button type='danger' onClick={this.handleDelete.bind(this)} className="login-form-button">Delete Notes</Button>
+                                    </FormItem>
+                                </Form>
+                            </div >
+                        )
+                        :
+
+                        (
+                            <div id='middlePageDesign'>
+                                <Card title={this.state.notes} extra={<div onClick={this.editable.bind(this,true)}><Icon type="edit" style={{ fontSize: 20, color: '#08c' }} /></div>}>
+
+                                    <Row>
+                                        <Col span={11}>
+                                            <center>
+                                                <b>Task Name</b>
+                                            </center>
+                                        </Col>
+                                        <Col span={2}>
+                                        </Col>
+                                        <Col span={11}>
+                                            <center>
+                                                <b>Task Status</b>
+                                            </center>
+                                        </Col>
+                                    </Row>
+                                    {
+                                        this.createNotes()
+                                    }
+
+                                </Card>
+                            </div>
+                        )
+                }
             </div>
+
+
         );
     }
 }
