@@ -10,9 +10,6 @@ var app = express();
 cors = require('cors')
 var cookieParser = require('cookie-parser');
 const path = require('path');
-
-
-
 mongooose.connect('mongodb://localhost/database');
 
 app.use('/', express.static(path.join(__dirname, '../../public')))
@@ -36,17 +33,22 @@ app.post('/signup', function (req, res) {
     //db.findAccount(req.body.name); //testing purpose
 })
 
-app.post('/notes1/:notesId', requiresLogin, function (req, res) {
+app.get('/notes1/:notesId', requiresLogin, function (req, res) {
 
     console.log('notes req params here', req.params.notesId);
-    db.findNotesTitle(req.params.notesId).then(
+    db.findNotesTitle(req.params.notesId, req.session.userId).then(
         notesTitle => {
-            db.findContent(req.params.notesId)
-                .then(
-                    doc => {
-                        return res.status(200).json({ message: doc, message1: notesTitle })
-                    }
-                )
+
+            if (notesTitle == null)
+                return res.status(401).json({ message: 'no notes found' })
+            else {
+                db.findContent(req.params.notesId)
+                    .then(
+                        doc => {
+                            return res.status(200).json({ message: doc, message1: notesTitle })
+                        }
+                    )
+            }
         }
     )
 
@@ -158,7 +160,7 @@ app.put('/updatenotes', function (req, res) {
     db.updateNotesTitle(req.body.notesID, req.body.notesTitle)
 })
 
-app.post('/viewnotes', requiresLogin, function (req, res) {
+app.get('/viewnotes', requiresLogin, function (req, res) {
     console.log('req id here', req.session.userId)
     db.findNotes(req.session.userId)
         .then(
@@ -208,13 +210,12 @@ app.post('/changepassword', requiresLogin, function (req, res) {
     db.checkCredentials(userObj)
         .then((doc) => {
             if (bcrypt.compareSync(currentPassword, doc.password)) {
-                
-                db.changePassword(req.session.userId,newPassword)
-                .then(doc =>
-                {
-                    if(doc != null)
-                    return res.status(200).json({message: 'changed'})
-                })
+
+                db.changePassword(req.session.userId, newPassword)
+                    .then(doc => {
+                        if (doc != null)
+                            return res.status(200).json({ message: 'changed' })
+                    })
             }
             else
                 return res.status(200).json({ message: 'not changed' })

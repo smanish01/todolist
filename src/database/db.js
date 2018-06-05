@@ -45,11 +45,20 @@ var contentTableSchema = new mongoose.Schema({
 
 })
 
+
+var noteAttachmentSchemaHandle = new mongoose.Schema({
+    uId: String,
+    notesID: String,
+    attachmentName: String,
+    size: String,
+    mimeType: String
+})
+
 //defining the model
 var userTableModel = mongoose.model('userTableModel', userTableSchema);
 var notesTableModel = mongoose.model('notesTableModel', notesTableSchema);
 var contentTableModel = mongoose.model('contentTableModel', contentTableSchema);
-
+var noteAttachmentModel = mongoose.model('noteAttachmentModel', noteAttachmentSchemaHandle);
 
 
 exports.createAccount = function (userObj) {
@@ -137,9 +146,9 @@ exports.findContent = function (notesId) {
     })
 }
 
-exports.findNotesTitle = function (notesId) {
+exports.findNotesTitle = function (notesId, userId) {
 
-    return notesTableModel.findById(notesId, (err, doc) => {
+    return notesTableModel.findOne({ uId: userId, _id: notesId }, (err, doc) => {
         if (err) throw err
         console.log('find notes here', doc);
     })

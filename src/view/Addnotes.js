@@ -134,8 +134,6 @@ class Addnotes extends React.Component {
                             </Col>
                         </Row>
                     </FormItem>
-                    {/* <input type="button" value="add task" onClick={this.addClick.bind(this)} />
-                        <input type="submit" value="Submit" /> */}
                 </Form>
             </div>
         );

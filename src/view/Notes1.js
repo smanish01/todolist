@@ -1,30 +1,39 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Link } from 'react-router-dom';
 import '../App.css';
 import _ from 'lodash';
 import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Card } from 'antd';
 import axios from 'axios';
+import edit from './Notes1';
 const FormItem = Form.Item;
 
 class Notes1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], deletedContent: [], notes: '', editable: false };
+        this.state = { values: [], deletedContent: [], notes: '', editable: false , notesId:''};
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentWillMount() {
 
-        console.log(localStorage.getItem('notesId'))
-        axios.post('http://localhost:3002/notes1/'+localStorage.getItem('notesId'))
-            .then(res => {
+        console.log('here',this.props.match.params.notesId)
+
+
+        axios.get('http://localhost:3002/notes1/'+this.props.match.params.notesId)
+            .then(res => { 
+
                 console.log('con here', res.data.message)
                 console.log('notes title here', res.data.message1.title);
-                this.setState({ values: res.data.message, notes: res.data.message1.title })
+                this.setState({ values: res.data.message, notes: res.data.message1.title  })
+
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                    message.error(err + ' unauthorized access');
+            });
 
     }
+
 
 
 
@@ -105,9 +114,6 @@ class Notes1 extends React.Component {
             let deleteArr = _.clone(this.state.deletedContent);
             deleteArr.push(id)
             this.setState(prevState => ({ deletedContent: deleteArr }))
-
-
-
         }
 
         //new content can be deleted
@@ -129,7 +135,7 @@ class Notes1 extends React.Component {
 
             var noteObj = {
                 values: this.state.values,
-                notesID: localStorage.getItem('notesId'),
+                notesID: this.props.match.params.notesId,
                 deletedContent: this.state.deletedContent,
                 notesTitle: this.state.notes
             }
@@ -197,8 +203,7 @@ class Notes1 extends React.Component {
 
     handleDelete(event) {
         event.preventDefault();
-        console.log(localStorage.getItem('notesId'))
-        axios.delete('http://localhost:3002/deletenotes/' + localStorage.getItem('notesId'))
+        axios.delete('http://localhost:3002/deletenotes/'+this.props.match.params.notesId)
             .then(res => console.log(res))
 
         message.success('notes deleted successfully')
@@ -241,7 +246,7 @@ class Notes1 extends React.Component {
 
                         (
                             <div id='middlePageDesign'>
-                                <Card title={this.state.notes} extra={<div onClick={this.editable.bind(this,true)}><Icon type="edit" style={{ fontSize: 20, color: '#08c' }} /></div>}>
+                                <Card title={this.state.notes} extra={<Link to={`/viewnotes/${this.props.match.params.notesId}/edit`}><div onClick={this.editable.bind(this, true)}><Icon type="edit" style={{ fontSize: 20, color: '#08c' }} /></div></Link>}>
 
                                     <Row>
                                         <Col span={11}>
@@ -266,7 +271,6 @@ class Notes1 extends React.Component {
                         )
                 }
             </div>
-
 
         );
     }

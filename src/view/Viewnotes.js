@@ -4,7 +4,7 @@ import '../App.css';
 import _ from 'lodash';
 import { Form, Icon } from 'antd';
 import { Card, Col, Row } from 'antd';
-import notes1 from './Notes1';
+import view from './Notes1';
 import addnotes from './Addnotes';
 import { Table, Input, Button, Popconfirm, message } from 'antd';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
@@ -58,13 +58,10 @@ class ViewNotes extends React.Component {
         message.success('Successfully Deleted');
     }
 
-    handleClick(id) {
-        localStorage.setItem('notesId', id);
-    }
 
     componentWillMount() {
 
-        axios.post('http://localhost:3002/viewnotes')
+        axios.get('http://localhost:3002/viewnotes')
             .then(res => {
                 if (res.data.message.length == 0) {
                     this.setState({ noNotesToDisplay: true })
@@ -110,9 +107,7 @@ class ViewNotes extends React.Component {
 
                                     <div key={index}>
                                         <Card.Grid style={gridStyle}>
-                                            <Link to={'/notes1'}>
-                                                <div onClick={this.handleClick.bind(this, notes._id)}>{notes.title}</div>
-                                            </Link>
+                                                {notes.title}
                                             <Row>
                                                 <Col span={9}>
                                                 </Col>
@@ -125,12 +120,10 @@ class ViewNotes extends React.Component {
                                                 <Col span={2}>
                                                 </Col>
 
-                                                <Link to={'/Notes1'}>
-                                                    <div onClick={this.handleClick.bind(this, notes._id)}>
+                                                <Link to={`/viewnotes/${notes._id}/view`}>
                                                         <Col span={2}>
                                                             <Icon type="edit" style={{ fontSize: 18, color: '#08c' }} />
                                                         </Col>
-                                                    </div>
                                                 </Link>
 
 
