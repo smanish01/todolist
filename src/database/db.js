@@ -49,8 +49,8 @@ var contentTableSchema = new mongoose.Schema({
 var noteAttachmentSchemaHandle = new mongoose.Schema({
     uId: String,
     notesID: String,
-    attachmentName: String,
-    size: String,
+    originalName: String,
+    savedName: String,
     mimeType: String
 })
 

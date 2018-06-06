@@ -22,7 +22,6 @@ class Notes1 extends React.Component {
 
         axios.get('http://localhost:3002/notes1/'+this.props.match.params.notesId)
             .then(res => { 
-
                 console.log('con here', res.data.message)
                 console.log('notes title here', res.data.message1.title);
                 this.setState({ values: res.data.message, notes: res.data.message1.title  })

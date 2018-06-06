@@ -10,6 +10,29 @@ var app = express();
 cors = require('cors')
 var cookieParser = require('cookie-parser');
 const path = require('path');
+const multer = require('multer');
+const uuidv4 = require('uuid/v4');
+
+// configure storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './assets');
+    },
+    filename: (req, file, cb) => {
+
+        const newFilename = `${uuidv4()}${path.extname(file.originalname)}`;
+
+        console.log('extenam here',file.mimetype)
+        cb(null, newFilename);
+
+
+        // db.createFiles(newFilename,req.session.userId,);
+
+    },
+});
+// create the multer instance that will be used to upload/save the file
+const upload = multer({ storage });
+
 mongooose.connect('mongodb://localhost/database');
 
 app.use('/', express.static(path.join(__dirname, '../../public')))
@@ -22,9 +45,15 @@ app.use(session({
     cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 }
 }))
 
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
 
 app.post('/signup', function (req, res) {
 
@@ -32,6 +61,18 @@ app.post('/signup', function (req, res) {
 
     //db.findAccount(req.body.name); //testing purpose
 })
+
+app.post('/fileupload', requiresLogin, upload.array('selectedFile'), (req, res) => {
+
+    console.log(req.body)
+    /*
+      We now have a new req.file object here. At this point the file has been saved
+      and the req.file.filename value will be the name returned by the
+      filename() function defined in the diskStorage configuration. Other form fields
+      are available here in req.body.
+    */
+    res.send();
+});
 
 app.get('/notes1/:notesId', requiresLogin, function (req, res) {
 
@@ -225,6 +266,8 @@ app.post('/changepassword', requiresLogin, function (req, res) {
         })
 
 })
+
+
 
 app.all('*', function (req, res) {
     let indexPath = path.resolve(__dirname + '/../../public/index.html')

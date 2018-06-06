@@ -32,6 +32,7 @@
     "history": "^4.7.2",
     "lodash": "^4.17.10",
     "mongoose": "^5.1.0",
+    "multer": "^1.3.0",
     "nodemon": "^1.17.4",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
@@ -40,6 +41,7 @@
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.4",
     "request": "^2.87.0",
+    "uuid": "^3.2.1",
     "webpack": "^4.8.3",
     "webpack-cli": "^2.1.3"
   },
