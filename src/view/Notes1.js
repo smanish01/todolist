@@ -36,15 +36,6 @@ class Notes1 extends React.Component {
 
 
 
-    // createNotes() {
-    //     return this.state.contentList.map((content, i) =>
-    //         <div key={i}>
-    //             Enter task here: <input type="checkbox" style={{ margin: '10px' }} checked={content.isChecked} onChange={this.handleCheckBox.bind(this, i)} />
-    //             <input type="text" value={content.content} onChange={this.handleChange.bind(this, i)} />
-    //             <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i)} style={{ fontSize: 20, color: '#08c' }} />
-    //         </div>
-    //     )
-    // }
 
 
     createUI() {
