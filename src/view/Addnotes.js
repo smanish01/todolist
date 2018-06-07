@@ -4,18 +4,16 @@ import { Redirect } from 'react-router-dom'
 import '../App.css';
 import axios from 'axios';
 import _ from 'lodash';
-import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Upload } from 'antd';
+import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Upload, Progress } from 'antd';
 const FormItem = Form.Item;
 
 class Addnotes extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], notes: '' };
+        this.state = { values: [], notes: '', selectedFile: null };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.validate = this.validate.bind(this);
     }
-
-
 
     uploadFile(e) {
 
@@ -26,20 +24,9 @@ class Addnotes extends React.Component {
     getFiles(e) {
         e.preventDefault();
 
-        let formData = new FormData();
+        this.setState({ selectedFile: e.target.files })
 
-        for (var i in e.target.files) {
-            if (!isNaN(i)) {
-                formData.append('selectedFile', e.target.files[i]);
-            }
-        }
-
-        console.log('selectes file here : -----  ', formData)
-
-        axios.post('http://localhost:3002/fileupload', formData)
-            .then((result) => {
-                console.log(result)
-            });
+        message.success('files has been uploaded please submit to complete the process', 5)
     }
 
 
@@ -107,9 +94,26 @@ class Addnotes extends React.Component {
         // console.log(this.state);
 
         if (validateState == true) {
+
             axios.post('http://localhost:3002/addnotes', this.state)
                 .then(response => {
-                    alert(response);
+
+                    let formData = new FormData();
+
+                    for (var i in this.state.selectedFile) {
+                        if (!isNaN(i)) {
+                            formData.append('selectedFile', this.state.selectedFile[i]);
+                        }
+                    }
+
+                    console.log('selectes file here : -----  ', formData)
+
+                    axios.post('http://localhost:3002/fileupload', formData)
+                        .then((result) => {
+                            console.log(result)
+                        });
+
+
                 })
                 .catch(error => { alert(error) });
             message.success('successfully submitted')
@@ -167,9 +171,9 @@ class Addnotes extends React.Component {
                             {/* <Button onClick={this.onSubmit.bind(this)} className="login-form-button">Upload</Button> */}
                             <Button type="primary" onClick={this.uploadFile.bind(this)} className="login-form-button" >
                                 <Icon type="upload" />Upload
-                                <Input id="hiddeninput" onChange={this.getFiles.bind(this)} 
-                                accept='.jpg,.png,.jpeg'
-                                type="file" hidden multiple />
+                                <Input id="hiddeninput" onChange={this.getFiles.bind(this)}
+                                    accept='.jpg,.png,.jpeg'
+                                    type="file" hidden multiple />
                             </Button>
                         </FormItem>
 

@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 mongoose.connect('mongodb://localhost/database');
 const saltRounds = 10;
+mongoose.Promise = Promise;
+
+
 
 //defining the schema
 var userTableSchema = new mongoose.Schema({
@@ -16,6 +19,7 @@ var userTableSchema = new mongoose.Schema({
     password: String,
     profilePhoto: Buffer
 })
+
 
 var notesTableSchema = new mongoose.Schema({
 
@@ -33,6 +37,8 @@ var notesTableSchema = new mongoose.Schema({
 
 })
 
+
+
 var contentTableSchema = new mongoose.Schema({
 
     // the id of the note it is present in
@@ -45,8 +51,8 @@ var contentTableSchema = new mongoose.Schema({
 
 })
 
-
 var noteAttachmentSchemaHandle = new mongoose.Schema({
+    imageId: String,
     uId: String,
     notesID: String,
     originalName: String,
@@ -54,11 +60,15 @@ var noteAttachmentSchemaHandle = new mongoose.Schema({
     mimeType: String
 })
 
+
+
 //defining the model
 var userTableModel = mongoose.model('userTableModel', userTableSchema);
 var notesTableModel = mongoose.model('notesTableModel', notesTableSchema);
 var contentTableModel = mongoose.model('contentTableModel', contentTableSchema);
 var noteAttachmentModel = mongoose.model('noteAttachmentModel', noteAttachmentSchemaHandle);
+
+
 
 
 exports.createAccount = function (userObj) {
@@ -71,6 +81,26 @@ exports.createAccount = function (userObj) {
         // saved!
     });
 
+}
+
+
+exports.createFiles = function (imageId, userId, notesId, originalname, newFilename, mimetype) {
+
+    let fileObjDatabase = {
+        imageId: imageId,
+        uId: userId,
+        notesID: notesId,
+        originalName: originalname,
+        savedName: newFilename,
+        mimeType: mimetype
+    }
+
+    let fileObj = new noteAttachmentModel(fileObjDatabase);
+    fileObj.save(function (err, fileData) {
+
+        //files save
+    }
+    )
 }
 
 exports.createNotes = function (notesObj) {
@@ -114,8 +144,15 @@ exports.createNotes = function (notesObj) {
             }
         )
 
-    });
+    })
 
+
+    return createNotes
+
+}
+
+exports.findImageContent = function(notesId) {
+    return noteAttachmentModel.find({notesID:notesId}).exec()
 }
 
 //testing purpose

@@ -20,13 +20,18 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
 
-        const newFilename = `${uuidv4()}${path.extname(file.originalname)}`;
+        let imageId = uuidv4()
 
-        console.log('extenam here',file.mimetype)
+        const newFilename = `${imageId}${(file.originalname)}`;
+
+        console.log('old file name-----------------------------------', file)
+        console.log('new file name$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$444', newFilename)
+        console.log('new file name$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$444', imageId)
+        console.log('extenam here', file.mimetype)
+
         cb(null, newFilename);
 
-
-        // db.createFiles(newFilename,req.session.userId,);
+        db.createFiles(imageId, req.session.userId, req.session.notesId,file.originalname,newFilename,file.mimetype);
 
     },
 });
@@ -59,18 +64,12 @@ app.post('/signup', function (req, res) {
 
     db.createAccount(req.body);
 
+    res.end()
     //db.findAccount(req.body.name); //testing purpose
 })
 
 app.post('/fileupload', requiresLogin, upload.array('selectedFile'), (req, res) => {
 
-    console.log(req.body)
-    /*
-      We now have a new req.file object here. At this point the file has been saved
-      and the req.file.filename value will be the name returned by the
-      filename() function defined in the diskStorage configuration. Other form fields
-      are available here in req.body.
-    */
     res.send();
 });
 
@@ -86,14 +85,21 @@ app.get('/notes1/:notesId', requiresLogin, function (req, res) {
                 db.findContent(req.params.notesId)
                     .then(
                         doc => {
-                            return res.status(200).json({ message: doc, message1: notesTitle })
+                            db.findImageContent(req.params.notesId)
+                            .then(
+                                imageDoc => {
+                                    console.log('imge doc here => #########################3333333333',imageDoc)
+
+                                    return res.status(200).json({ message: doc, message1: notesTitle ,message2: imageDoc}) 
+                                }     
+                            )
                         }
                     )
             }
         }
     )
-
 })
+
 
 
 app.get('/userinfo', requiresLogin, function (req, res) {
@@ -168,7 +174,13 @@ app.get('/hello', (req, res) => {
 app.post('/addnotes', requiresLogin, function (req, res) {
     console.log(req.body);
     req.body.userId = req.session.userId;
-    db.createNotes(req.body);
+
+    var notesObj = db.createNotes(req.body)
+
+    req.session.notesId = notesObj._id;
+
+    res.send()
+
 })
 
 app.post('/checkuser', function (req, res) {
@@ -182,6 +194,7 @@ app.delete('/deletenotes/:id', function (req, res) {
 
     db.deleteNotes(req.params.id)
 
+    res.end()
 })
 
 app.put('/updatenotes', function (req, res) {
@@ -199,7 +212,10 @@ app.put('/updatenotes', function (req, res) {
     })
 
     db.updateNotesTitle(req.body.notesID, req.body.notesTitle)
+
+    res.end()
 })
+
 
 app.get('/viewnotes', requiresLogin, function (req, res) {
     console.log('req id here', req.session.userId)

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import '../App.css';
 import _ from 'lodash';
-import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Card } from 'antd';
+import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Card, Upload } from 'antd';
 import axios from 'axios';
 import edit from './Notes1';
 const FormItem = Form.Item;
@@ -11,29 +11,27 @@ const FormItem = Form.Item;
 class Notes1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], deletedContent: [], notes: '', editable: false , notesId:''};
+        this.state = { values: [], deletedContent: [], notes: '', editable: false, notesId: '', imageContent: [] };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentWillMount() {
 
-        console.log('here',this.props.match.params.notesId)
+        console.log('here', this.props.match.params.notesId)
 
 
-        axios.get('http://localhost:3002/notes1/'+this.props.match.params.notesId)
-            .then(res => { 
+        axios.get('http://localhost:3002/notes1/' + this.props.match.params.notesId)
+            .then(res => {
                 console.log('con here', res.data.message)
                 console.log('notes title here', res.data.message1.title);
-                this.setState({ values: res.data.message, notes: res.data.message1.title  })
+                console.log('imageContent here', res.data.message2)
+                this.setState({ values: res.data.message, notes: res.data.message1.title, imageContent: res.data.message2 })
 
             })
             .catch(err => {
-                    message.error(err + ' unauthorized access');
+                message.error(err + ' unauthorized access');
             });
-
     }
-
-
 
 
 
@@ -193,7 +191,7 @@ class Notes1 extends React.Component {
 
     handleDelete(event) {
         event.preventDefault();
-        axios.delete('http://localhost:3002/deletenotes/'+this.props.match.params.notesId)
+        axios.delete('http://localhost:3002/deletenotes/' + this.props.match.params.notesId)
             .then(res => console.log(res))
 
         message.success('notes deleted successfully')
@@ -257,6 +255,32 @@ class Notes1 extends React.Component {
                                     }
 
                                 </Card>
+                                {
+                                    (this.state.imageContent.length > 0)
+                                        ?
+                                        (
+                                            <Card>
+                                                <Row>
+                                                    <center>Uploads here</center>
+                                                </Row>
+                                                {
+                                                    this.state.imageContent.map(
+                                                        value => {
+                                                            <a href={`./assets/${value.savedName}`} download>
+                                                                <img src={`./assets/${value.savedName}`} />
+                                                            </a>
+                                                        }
+                                                    )
+                                                }
+                                            </Card>
+                                        )
+                                        :
+                                        (
+                                            <div>
+                                            </div>
+                                        )
+                                }
+
                             </div>
                         )
                 }
