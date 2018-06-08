@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../database/db');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 var mongooose = require('mongoose');
@@ -22,7 +23,7 @@ const storage = multer.diskStorage({
 
         let imageId = uuidv4()
 
-        const newFilename = `${imageId}${(file.originalname)}`;
+        const newFilename = `${imageId}`;
 
         console.log('old file name-----------------------------------', file)
         console.log('new file name$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$444', newFilename)
@@ -31,10 +32,12 @@ const storage = multer.diskStorage({
 
         cb(null, newFilename);
 
-        db.createFiles(imageId, req.session.userId, req.session.notesId,file.originalname,newFilename,file.mimetype);
+        req.session.imageIds.push(db.createFiles(imageId, req.session.userId,file.originalname,newFilename,file.mimetype));
 
+        console.log(req.session.imageIds)
     },
 });
+
 // create the multer instance that will be used to upload/save the file
 const upload = multer({ storage });
 
@@ -70,7 +73,10 @@ app.post('/signup', function (req, res) {
 
 app.post('/fileupload', requiresLogin, upload.array('selectedFile'), (req, res) => {
 
-    res.send();
+    res.status(200).json({message11: req.session.imageIds})
+
+    req.session.imageIds.splice(0,req.session.imageIds.length)
+
 });
 
 app.get('/notes1/:notesId', requiresLogin, function (req, res) {
@@ -101,6 +107,20 @@ app.get('/notes1/:notesId', requiresLogin, function (req, res) {
 })
 
 
+app.get('/assets/:imageId',function(req,res) {
+
+    console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$',req.params.imageId)
+    
+    // console.log('res file here->>>>>>>>>>>>>>>>>>>>',res.sendFile(req.params.imageId, { root: path.join(__dirname, './assets') })) 
+    res.sendFile(__dirname + "/assets/" + req.params.imageId)
+    // fs.readFile(__dirname + "/assets/" + req.params.imageId, "utf8", function(err, data){
+    //     if(err) throw err;
+    
+    //     res.send(data)
+
+    // });
+
+})
 
 app.get('/userinfo', requiresLogin, function (req, res) {
 
@@ -134,6 +154,7 @@ app.post('/login', function (req, res) {
         .then((doc) => {
             if (bcrypt.compareSync(req.body.password, doc.password)) {
                 req.session.userId = doc._id;
+                req.session.imageIds = [];
                 console.log(req.session, req.sessionID, req.session.userId);
                 return res.status(200).json({ message: 'connected' })
             }
@@ -177,9 +198,7 @@ app.post('/addnotes', requiresLogin, function (req, res) {
 
     var notesObj = db.createNotes(req.body)
 
-    req.session.notesId = notesObj._id;
-
-    res.send()
+    res.status(200).json({ message :  notesObj._id})
 
 })
 
@@ -190,14 +209,14 @@ app.post('/checkuser', function (req, res) {
 
 })
 
-app.delete('/deletenotes/:id', function (req, res) {
+app.delete('/deletenotes/:id', requiresLogin,function (req, res) {
 
     db.deleteNotes(req.params.id)
 
     res.end()
 })
 
-app.put('/updatenotes', function (req, res) {
+app.put('/updatenotes', requiresLogin,function (req, res) {
     console.log('updates here', req.body);
 
     req.body.deletedContent.map(
@@ -283,9 +302,7 @@ app.post('/changepassword', requiresLogin, function (req, res) {
 
 })
 
-
-
-app.all('*', function (req, res) {
+app.all('*',requiresLogin, function (req, res) {
     let indexPath = path.resolve(__dirname + '/../../public/index.html')
     res.sendFile(indexPath)
 })

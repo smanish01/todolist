@@ -18,7 +18,6 @@ class Addnotes extends React.Component {
     uploadFile(e) {
 
         document.getElementById("hiddeninput").click()
-
     }
 
     getFiles(e) {
@@ -98,6 +97,9 @@ class Addnotes extends React.Component {
             axios.post('http://localhost:3002/addnotes', this.state)
                 .then(response => {
 
+
+                    console.log('add notes id here ->>>>>>>>>>>>>>.' + response.data.message)
+
                     let formData = new FormData();
 
                     for (var i in this.state.selectedFile) {
@@ -110,9 +112,8 @@ class Addnotes extends React.Component {
 
                     axios.post('http://localhost:3002/fileupload', formData)
                         .then((result) => {
-                            console.log(result)
+                            console.log('imageid result->>>>>>>############$$$$$$$$$$'+result.data.message11)
                         });
-
 
                 })
                 .catch(error => { alert(error) });

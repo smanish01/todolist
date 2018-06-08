@@ -89,18 +89,19 @@ exports.createFiles = function (imageId, userId, notesId, originalname, newFilen
     let fileObjDatabase = {
         imageId: imageId,
         uId: userId,
-        notesID: notesId,
         originalName: originalname,
         savedName: newFilename,
         mimeType: mimetype
     }
 
     let fileObj = new noteAttachmentModel(fileObjDatabase);
+
     fileObj.save(function (err, fileData) {
 
         //files save
-    }
-    )
+    })
+
+    return fileObj.imageId;
 }
 
 exports.createNotes = function (notesObj) {
@@ -243,7 +244,6 @@ exports.createContentByUpdate = function (contentObj, notesID) {
         if (err) throw err
         console.log(contentData)
     });
-
 }
 
 

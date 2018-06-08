@@ -24,7 +24,6 @@ class ViewNotes extends React.Component {
             notesList: [],
             noNotesToDisplay: false,
         };
-
     }
 
     deleteNotes(id) {

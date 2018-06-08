@@ -3,16 +3,35 @@ import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import '../App.css';
 import _ from 'lodash';
-import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Card, Upload } from 'antd';
+import { Form, Icon, Button, Avatar, Input, Checkbox, Row, Col, message, Card, Upload } from 'antd';
 import axios from 'axios';
 import edit from './Notes1';
+import ImageLoader from 'react-load-image';
 const FormItem = Form.Item;
+const gridStyle = {
+    width: '50%',
+    textAlign: 'center',
+};
 
 class Notes1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], deletedContent: [], notes: '', editable: false, notesId: '', imageContent: [] };
+        this.state = { values: [], deletedContent: [], notes: '', editable: false, notesId: '', imageContentIds: [] };
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    uploadFile(e) {
+
+        document.getElementById("hiddeninput").click()
+
+    }
+
+    getFiles(e) {
+        e.preventDefault();
+
+        this.setState({ selectedFile: e.target.files })
+
+        message.success('files has been uploaded please submit to complete the process', 5)
     }
 
     componentWillMount() {
@@ -25,16 +44,15 @@ class Notes1 extends React.Component {
                 console.log('con here', res.data.message)
                 console.log('notes title here', res.data.message1.title);
                 console.log('imageContent here', res.data.message2)
-                this.setState({ values: res.data.message, notes: res.data.message1.title, imageContent: res.data.message2 })
+                this.setState({ values: res.data.message, notes: res.data.message1.title, imageContentIds: res.data.message2 })
+
+                console.log('image file here->>>>>>>>>>>>>>>>>', this.state.imageContentIds)
 
             })
             .catch(err => {
                 message.error(err + ' unauthorized access');
             });
     }
-
-
-
 
     createUI() {
         return this.state.values.map((el, i) =>
@@ -225,9 +243,51 @@ class Notes1 extends React.Component {
                                         </Row>
                                     </FormItem>
                                     <FormItem>
+                                        {
+                                            (this.state.imageContentIds.length > 0)
+                                                ?
+                                                (
+                                                    <Card>
+                                                        <Row>
+                                                            <h3><center>Uploads here:</center></h3>
+                                                            <center><Button>Add More
+                                                                <Icon type='plus' />
+                                                            </Button></center>
+                                                            <br/>
+                                                        </Row>
+                                                        {
+                                                            this.state.imageContentIds.map(
+                                                                (image, index) => {
+
+                                                                    return (
+                                                                        <div key={index} >
+                                                                            <Card.Grid style={gridStyle}>
+                                                                                {console.log('mbcsdghvs#####################', image.imageId)}
+
+                                                                                <a href={'http://localhost:3002/assets/' + image.imageId} download>
+                                                                                    <img src={'http://localhost:3002/assets/' + image.imageId} height={100} width={100} />
+                                                                                </a>
+                                                                            </Card.Grid>
+                                                                        </div>
+                                                                    )
+
+                                                                }
+                                                            )
+                                                        }
+                                                    </Card>
+                                                )
+                                                :
+                                                (
+                                                    <div>
+                                                    </div>
+                                                )
+                                        }
+                                    </FormItem>
+                                    <FormItem>
                                         <Button type='danger' onClick={this.handleDelete.bind(this)} className="login-form-button">Delete Notes</Button>
                                     </FormItem>
                                 </Form>
+
                             </div >
                         )
                         :
@@ -256,19 +316,29 @@ class Notes1 extends React.Component {
 
                                 </Card>
                                 {
-                                    (this.state.imageContent.length > 0)
+                                    (this.state.imageContentIds.length > 0)
                                         ?
                                         (
                                             <Card>
                                                 <Row>
-                                                    <center>Uploads here</center>
+                                                    <h3><center>Uploads here:</center></h3>
                                                 </Row>
                                                 {
-                                                    this.state.imageContent.map(
-                                                        value => {
-                                                            <a href={`./assets/${value.savedName}`} download>
-                                                                <img src={`./assets/${value.savedName}`} />
-                                                            </a>
+                                                    this.state.imageContentIds.map(
+                                                        (image, index) => {
+
+                                                            return (
+                                                                <div key={index} >
+                                                                    <Card.Grid style={gridStyle}>
+                                                                        {console.log('mbcsdghvs#####################', image.imageId)}
+
+                                                                        <a href={'http://localhost:3002/assets/' + image.imageId} download>
+                                                                            <img src={'http://localhost:3002/assets/' + image.imageId} height={100} width={100} />
+                                                                        </a>
+                                                                    </Card.Grid>
+                                                                </div>
+                                                            )
+
                                                         }
                                                     )
                                                 }
