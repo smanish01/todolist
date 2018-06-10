@@ -4,23 +4,63 @@ import { Redirect } from 'react-router-dom'
 import '../App.css';
 import axios from 'axios';
 import _ from 'lodash';
-import { Form, Icon } from 'antd';
-
+import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Upload, Progress } from 'antd';
+const FormItem = Form.Item;
 
 class Addnotes extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], notes: ''};
+        this.state = { values: [], notes: '', selectedFile: null };
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.validate = this.validate.bind(this);
     }
+
+    uploadFile(e) {
+
+        document.getElementById("hiddeninput").click()
+    }
+
+    getFiles(e) {
+        e.preventDefault();
+
+        this.setState({ selectedFile: e.target.files })
+
+        message.success('files has been uploaded please submit to complete the process', 5)
+    }
+
 
     createUI() {
         return this.state.values.map((el, i) =>
             <div key={i}>
-                Task #{i + 1}: <input type="text" value={el.content || ''} style={{ margin: '10px' }} onChange={this.handleChange.bind(this, i)} />
-                <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i)} style={{ fontSize: 20, color: '#08c' }} />
+
+
+                {/* <Input type="checkbox" style={{ margin: '10px' }}
+             checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)} /> */}
+
+                <Row>
+                    <Col span={1}>
+                        <FormItem><Checkbox onChange={this.handleCheckBox.bind(this, i)}>
+                        </Checkbox>
+                        </FormItem></Col>
+                    <Col span={1}> </Col>
+                    <Col span={22}>
+                        <FormItem><Input type="text" value={el.content || ''}
+                            onChange={this.handleChange.bind(this, i)}
+                            placeholder='Enter Task here'
+                            suffix={<Icon type='minus-circle-o'
+                                onClick={this.removeClick.bind(this, i)} style={{ fontSize: 20, color: '#08c' }} />} />
+                        </FormItem>
+                    </Col>
+                </Row>
             </div>
         )
+    }
+
+
+    handleCheckBox(i, event) {
+        let values = _.clone(this.state.values);
+        values[i].isChecked = !values[i].isChecked;
+        this.setState({ values });
     }
 
     handleChange(i, event) {
@@ -47,25 +87,115 @@ class Addnotes extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        axios.post('http://localhost:3002/addnotes', this.state)
-            .then(response => {
-                alert(response);
-            })
-            .catch(error => {alert(error)});
+
+        var validateState = this.validate();
+
+        // console.log(this.state);
+
+        if (validateState == true) {
+
+            axios.post('http://localhost:3002/addnotes', this.state)
+                .then(response => {
+
+
+                    console.log('add notes id here ->>>>>>>>>>>>>>.' + response.data.message)
+
+                    let formData = new FormData();
+
+                    for (var i in this.state.selectedFile) {
+                        if (!isNaN(i)) {
+                            formData.append('selectedFile', this.state.selectedFile[i]);
+                        }
+                    }
+
+                    console.log('selectes file here : -----  ', formData)
+
+                    axios.post('http://localhost:3002/fileupload', formData)
+                        .then((result) => {
+                            console.log('imageid result->>>>>>>############$$$$$$$$$$'+result.data.message11)
+                        });
+
+                })
+                .catch(error => { alert(error) });
+            message.success('successfully submitted')
+
+            this.props.history.push('/viewnotes');
+        }
+        else
+            message.warn('please fill all the text boxes')
+
+    }
+
+    validate() {
+        var counter = 0;
+
+        this.state.values.map(
+
+            content => {
+                console.log(content)
+                if (content.content.length == 0)
+                    counter++;
+            }
+        )
+
+        if ((this.state.notes.length > 0) && (counter == 0))
+            return true;
+        else
+            return false;
+
+
     }
 
     render() {
+        const { getFieldDecorator } = this.props.form;
         return (
             <div id='middlePageDesign'>
-                <form onSubmit={this.handleSubmit} >
-                    Notes title: <input type="text" value={this.state.value} style={{ margin: '10px' }} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" required />
-                    <br />
+                <Form onSubmit={this.handleSubmit} >
+                    <FormItem>
+                        <Input type="text" value={this.state.notes} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" />
+                    </FormItem>
                     {this.createUI()}
-                    <div id='addFormButtons'>
-                        <input type="button" value="add task" onClick={this.addClick.bind(this)} />
-                        <input type="submit" value="Submit" />
-                    </div>
-                </form>
+
+                    <Row>
+                        {/* <FormItem>
+                            <Col span={11}>
+
+                                <Input type="file" onChange={this.fileChangedHandler.bind(this)} multiple />
+                            </Col>
+                            <Col span={2}></Col>
+                            <Col span={11}>
+                                <Button onClick={this.uploadHandler.bind(this)} className="login-form-button">Upload</Button>
+                            </Col>
+                        </FormItem> */}
+
+                        <FormItem>
+                            {/* <Button onClick={this.onSubmit.bind(this)} className="login-form-button">Upload</Button> */}
+                            <Button type="primary" onClick={this.uploadFile.bind(this)} className="login-form-button" >
+                                <Icon type="upload" />Upload
+                                <Input id="hiddeninput" onChange={this.getFiles.bind(this)}
+                                    accept='.jpg,.png,.jpeg'
+                                    type="file" hidden multiple />
+                            </Button>
+                        </FormItem>
+
+
+
+
+                    </Row>
+
+                    <FormItem>
+                        <Row>
+                            <Col span={11}>
+                                <Button onClick={this.addClick.bind(this)} className="login-form-button">Add Task</Button>
+                            </Col>
+                            <Col span={2}></Col>
+                            <Col span={11}>
+                                <Button type="primary" htmlType="submit" className="login-form-button">Submit</Button>
+                            </Col>
+                        </Row>
+                    </FormItem>
+
+                </Form>
             </div>
         );
     }

@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import '../App.css';
 import axios from 'axios';
-import { Form, Icon, Input, Button, Checkbox } from 'antd';
-import { browserHistory } from 'history'
+import { Form, Icon, Input, Button, Checkbox, Alert, message } from 'antd';
 const FormItem = Form.Item;
 
 class Login extends Component {
@@ -12,6 +11,8 @@ class Login extends Component {
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
+
+
 
   /* testing purpose
   getData(){
@@ -55,21 +56,20 @@ class Login extends Component {
 
         axios.post('http://localhost:3002/login', values)
           .then(response => {
-
-            console.log(response)
             if (response.data.message == 'connected') {
-              alert('you are logged in');
-              console.log('before updatelog')
-              console.log('here is this props his',this.props.history);
+              message.success('you are logged in');
+              // alert('you are logged in');
+              // console.log('before updatelog')
+              // console.log('here is this props his',this.props.history);
               this.props.updateLog(true);
-              console.log('after updatelog')
-              console.log('here is this props his',this.props);
+              // console.log('after updatelog')
+              // console.log('here is this props his',this.props);
 
               this.props.history.push('/viewnotes');
-              
+
             }
             if (response.data.message == 'wrong credentials')
-              alert('please enter correct credentials');
+              message.error('please enter correct credentials')
           })
           .catch(error => console.log(error));
 

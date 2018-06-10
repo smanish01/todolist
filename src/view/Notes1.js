@@ -1,48 +1,88 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Link } from 'react-router-dom';
 import '../App.css';
 import _ from 'lodash';
-import { Form, Icon } from 'antd';
+import { Form, Icon, Button, Avatar, Input, Checkbox, Row, Col, message, Card, Upload } from 'antd';
 import axios from 'axios';
-
+import edit from './Notes1';
+import ImageLoader from 'react-load-image';
+const FormItem = Form.Item;
+const gridStyle = {
+    width: '50%',
+    textAlign: 'center',
+};
 
 class Notes1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], DeletedContent: [] };
+        this.state = { values: [], deletedContent: [], notes: '', editable: false, notesId: '', imageContentIds: [] };
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    uploadFile(e) {
+
+        document.getElementById("hiddeninput").click()
+
+    }
+
+    getFiles(e) {
+        e.preventDefault();
+
+        this.setState({ selectedFile: e.target.files })
+
+        message.success('files has been uploaded please submit to complete the process', 5)
     }
 
     componentWillMount() {
 
-        axios.post('http://localhost:3002/notes1', { notesId: localStorage.getItem('notesId') })
+        console.log('here', this.props.match.params.notesId)
+
+
+        axios.get('http://localhost:3002/notes1/' + this.props.match.params.notesId)
             .then(res => {
                 console.log('con here', res.data.message)
-                this.setState({ values: res.data.message })
+                console.log('notes title here', res.data.message1.title);
+                console.log('imageContent here', res.data.message2)
+                this.setState({ values: res.data.message, notes: res.data.message1.title, imageContentIds: res.data.message2 })
+
+                console.log('image file here->>>>>>>>>>>>>>>>>', this.state.imageContentIds)
+
             })
-            .catch(err => console.log(err));
-
+            .catch(err => {
+                message.error(err + ' unauthorized access');
+            });
     }
-
-
-    // createNotes() {
-    //     return this.state.contentList.map((content, i) =>
-    //         <div key={i}>
-    //             Enter task here: <input type="checkbox" style={{ margin: '10px' }} checked={content.isChecked} onChange={this.handleCheckBox.bind(this, i)} />
-    //             <input type="text" value={content.content} onChange={this.handleChange.bind(this, i)} />
-    //             <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i)} style={{ fontSize: 20, color: '#08c' }} />
-    //         </div>
-    //     )
-    // }
-
 
     createUI() {
         return this.state.values.map((el, i) =>
+
             <div key={i}>
-                Enter task here: <input type="checkbox" style={{ margin: '10px' }} checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)} />
-                <input value={el.content} type="text" onChange={this.handleChange.bind(this, i)} />
-                <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i, el._id)} style={{ fontSize: 20, color: '#08c' }} />
+
+                <FormItem>
+
+                    <Row>
+                        <Col span={1}><Checkbox checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)}>
+                        </Checkbox></Col>
+                        <Col span={1}> </Col>
+                        <Col span={22}><Input type="text" value={el.content}
+                            onChange={this.handleChange.bind(this, i)}
+                            placeholder='Enter Task here'
+                            suffix={<Icon type='minus-circle-o'
+                                onClick={this.removeClick.bind(this, i, el._id)} style={{ fontSize: 20, color: '#08c' }} />} />
+                        </Col>
+                    </Row>
+
+
+
+                </FormItem>
             </div>
+
+            // <div key={i}>
+            //     Enter task here: <input type="checkbox" style={{ margin: '10px' }} checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)} />
+            //     <input value={el.content} type="text" onChange={this.handleChange.bind(this, i)} />
+            //     <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i, el._id)} style={{ fontSize: 20, color: '#08c' }} />
+            // </div>
         )
     }
 
@@ -65,25 +105,25 @@ class Notes1 extends React.Component {
         this.setState(prevState => ({ values: cloneValue }))
     }
 
-    removeClick(i,id) {
-     
+    addnotestitle(event) {
+        this.setState({ notes: event.target.value })
+    }
+
+    removeClick(i, id) {
+
         //old content id is saved in deletedcontent to delete further
         if (id) {
             let values = _.clone(this.state.values);
             values.splice(i, 1);
             this.setState({ values });
-            
-            let deleteArr = _.clone(this.state.DeletedContent);
+
+            let deleteArr = _.clone(this.state.deletedContent);
             deleteArr.push(id)
-            this.setState(prevState => ({DeletedContent : deleteArr}))
-
-
-            
+            this.setState(prevState => ({ deletedContent: deleteArr }))
         }
-        
-           //new content can be deleted
-        else
-        {
+
+        //new content can be deleted
+        else {
             let values = _.clone(this.state.values);
             values.splice(i, 1);
             this.setState({ values });
@@ -94,30 +134,228 @@ class Notes1 extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
 
-        var noteObj = {
-            values: this.state.values,
-            notesID: localStorage.getItem('notesId')
+        var validateState = this.validate();
+
+
+        if (validateState) {
+
+            var noteObj = {
+                values: this.state.values,
+                notesID: this.props.match.params.notesId,
+                deletedContent: this.state.deletedContent,
+                notesTitle: this.state.notes
+            }
+
+            // console.log(this.state.deletedContent)
+
+            axios.put('http://localhost:3002/updatenotes', noteObj)
+                .then(res => console.log(res))
+                .catch(err => console.log(err))
+
+            message.success('notes updated successfully')
+            this.props.history.push('/viewnotes')
         }
+        else
+            message.warn('please fill all the textboxes')
+    }
 
-        console.log(this.state.DeletedContent)
+    validate() {
+        var counter = 0;
 
-        axios.post('http://localhost:3002/updatenotes', noteObj)
+        this.state.values.map(
+
+            content => {
+                console.log(content)
+                if (content.content.length == 0)
+                    counter++;
+            }
+        )
+
+        if ((this.state.notes.length > 0) && (counter == 0))
+            return true;
+        else
+            return false;
+
+
+    }
+
+    createNotes() {
+
+        return this.state.values.map((el, i) =>
+
+            <div key={i}>
+                <Row>
+                    <Col span={11}>
+                        <center>
+                            {el.content}
+                        </center>
+                    </Col>
+                    <Col span={2}>
+                        :
+                    </Col>
+                    <Col span={11}>
+                        <center>
+                            <Checkbox defaultChecked={el.isChecked} disabled />
+                        </center>
+                    </Col>
+                </Row>
+            </div>
+        )
+    }
+
+    editable(value) {
+        this.setState({ editable: value });
+    }
+
+    handleDelete(event) {
+        event.preventDefault();
+        axios.delete('http://localhost:3002/deletenotes/' + this.props.match.params.notesId)
             .then(res => console.log(res))
-            .catch(err => console.log(err))
+
+        message.success('notes deleted successfully')
+        this.props.history.push('/viewnotes')
     }
 
     render() {
         return (
-            <div id='middlePageDesign'>
-                <form onSubmit={this.handleSubmit} >
-                    <br />
-                    {this.createUI()}
-                    <div id='addFormButtons'>
-                        <input type="button" value="add task" onClick={this.addClick.bind(this)} />
-                        <input type="submit" value="Submit" />
-                    </div>
-                </form>
+
+            <div>
+                {
+
+                    this.state.editable
+                        ?
+                        (
+                            <div id='middlePageDesign'>
+                                <Form onSubmit={this.handleSubmit} >
+                                    <FormItem>
+                                        <Input type="text" value={this.state.notes} onChange={this.addnotestitle.bind(this)} placeholder="Note's title" />
+                                    </FormItem>
+                                    {this.createUI()}
+                                    <FormItem>
+                                        <Row>
+                                            <Col span={11}>
+                                                <Button onClick={this.addClick.bind(this)} className="login-form-button">Add Task</Button>
+                                            </Col>
+                                            <Col span={2}></Col>
+                                            <Col span={11}>
+                                                <Button type="primary" htmlType="submit" className="login-form-button">Update</Button>
+                                            </Col>
+                                        </Row>
+                                    </FormItem>
+                                    <FormItem>
+                                        {
+                                            (this.state.imageContentIds.length > 0)
+                                                ?
+                                                (
+                                                    <Card>
+                                                        <Row>
+                                                            <h3><center>Uploads here:</center></h3>
+                                                            <center><Button>Add More
+                                                                <Icon type='plus' />
+                                                            </Button></center>
+                                                            <br/>
+                                                        </Row>
+                                                        {
+                                                            this.state.imageContentIds.map(
+                                                                (image, index) => {
+
+                                                                    return (
+                                                                        <div key={index} >
+                                                                            <Card.Grid style={gridStyle}>
+                                                                                {console.log('mbcsdghvs#####################', image.imageId)}
+
+                                                                                <a href={'http://localhost:3002/assets/' + image.imageId} download>
+                                                                                    <img src={'http://localhost:3002/assets/' + image.imageId} height={100} width={100} />
+                                                                                </a>
+                                                                            </Card.Grid>
+                                                                        </div>
+                                                                    )
+
+                                                                }
+                                                            )
+                                                        }
+                                                    </Card>
+                                                )
+                                                :
+                                                (
+                                                    <div>
+                                                    </div>
+                                                )
+                                        }
+                                    </FormItem>
+                                    <FormItem>
+                                        <Button type='danger' onClick={this.handleDelete.bind(this)} className="login-form-button">Delete Notes</Button>
+                                    </FormItem>
+                                </Form>
+
+                            </div >
+                        )
+                        :
+
+                        (
+                            <div id='middlePageDesign'>
+                                <Card title={this.state.notes} extra={<Link to={`/viewnotes/${this.props.match.params.notesId}/edit`}><div onClick={this.editable.bind(this, true)}><Icon type="edit" style={{ fontSize: 20, color: '#08c' }} /></div></Link>}>
+
+                                    <Row>
+                                        <Col span={11}>
+                                            <center>
+                                                <b>Task Name</b>
+                                            </center>
+                                        </Col>
+                                        <Col span={2}>
+                                        </Col>
+                                        <Col span={11}>
+                                            <center>
+                                                <b>Task Status</b>
+                                            </center>
+                                        </Col>
+                                    </Row>
+                                    {
+                                        this.createNotes()
+                                    }
+
+                                </Card>
+                                {
+                                    (this.state.imageContentIds.length > 0)
+                                        ?
+                                        (
+                                            <Card>
+                                                <Row>
+                                                    <h3><center>Uploads here:</center></h3>
+                                                </Row>
+                                                {
+                                                    this.state.imageContentIds.map(
+                                                        (image, index) => {
+
+                                                            return (
+                                                                <div key={index} >
+                                                                    <Card.Grid style={gridStyle}>
+                                                                        {console.log('mbcsdghvs#####################', image.imageId)}
+
+                                                                        <a href={'http://localhost:3002/assets/' + image.imageId} download>
+                                                                            <img src={'http://localhost:3002/assets/' + image.imageId} height={100} width={100} />
+                                                                        </a>
+                                                                    </Card.Grid>
+                                                                </div>
+                                                            )
+
+                                                        }
+                                                    )
+                                                }
+                                            </Card>
+                                        )
+                                        :
+                                        (
+                                            <div>
+                                            </div>
+                                        )
+                                }
+
+                            </div>
+                        )
+                }
             </div>
+
         );
     }
 }
