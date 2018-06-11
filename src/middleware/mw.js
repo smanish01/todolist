@@ -32,7 +32,7 @@ const storage = multer.diskStorage({
 
         cb(null, newFilename);
 
-        req.session.imageIds.push(db.createFiles(imageId, req.session.userId,file.originalname,newFilename,file.mimetype));
+        db.createFiles(imageId, req.session.userId,req.session.notesId,file.originalname,newFilename,file.mimetype);
 
         console.log(req.session.imageIds)
     },
@@ -74,8 +74,6 @@ app.post('/signup', function (req, res) {
 app.post('/fileupload', requiresLogin, upload.array('selectedFile'), (req, res) => {
 
     res.status(200).json({message11: req.session.imageIds})
-
-    req.session.imageIds.splice(0,req.session.imageIds.length)
 
 });
 
@@ -196,9 +194,11 @@ app.post('/addnotes', requiresLogin, function (req, res) {
     console.log(req.body);
     req.body.userId = req.session.userId;
 
-    var notesObj = db.createNotes(req.body)
+    let notesId = db.createNotes(req.body)
 
-    res.status(200).json({ message :  notesObj._id})
+    console.log('notes id here ------------------------------>>>>>>>>>>> #############', notesId)
+    req.session.notesId = notesId;
+    res.status(200).json({ message :  notesId})
 
 })
 

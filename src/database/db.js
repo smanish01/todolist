@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 mongoose.connect('mongodb://localhost/database');
+mongoose.Promise = global.Promise;
 const saltRounds = 10;
-mongoose.Promise = Promise;
-
-
+//Get the default connection
+var db = mongoose.connection;
+//Bind connection to error event (to get notification of connection errors)
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 //defining the schema
 var userTableSchema = new mongoose.Schema({
@@ -19,7 +21,6 @@ var userTableSchema = new mongoose.Schema({
     password: String,
     profilePhoto: Buffer
 })
-
 
 var notesTableSchema = new mongoose.Schema({
 
@@ -83,12 +84,12 @@ exports.createAccount = function (userObj) {
 
 }
 
-
 exports.createFiles = function (imageId, userId, notesId, originalname, newFilename, mimetype) {
 
     let fileObjDatabase = {
         imageId: imageId,
         uId: userId,
+        notesID: notesId,
         originalName: originalname,
         savedName: newFilename,
         mimeType: mimetype
@@ -109,51 +110,60 @@ exports.createNotes = function (notesObj) {
 
     //creating notes objects
 
-    var notesObjDatabase = {
-        uId: notesObj.userId,
-        title: notesObj.notes,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
+    var createNotes = new notesTableModel(
+        {
+            uId: notesObj.userId,
+            title: notesObj.notes,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        }
+    );
 
-    };
+    let promise = createNotes.save()
 
+    promise.then(
 
-    var createNotes = new notesTableModel(notesObjDatabase);
-    createNotes.save(function (err, notesData) {
+        (notesData) => {
 
-        if (err) throw err
+            //map the notesObj.values for content values
 
-        //map the notesObj.values for content values
+            notesObj.values.map(
+                (values) => {
 
-        notesObj.values.map(
-            (values) => {
+                    var createContents = new contentTableModel({
+                        notesID: notesData._id,
+                        content: values.content,
+                        isChecked: values.isChecked
+                    });
 
-                var contentObjDatabase = {
-                    notesID: notesData._id,
-                    content: values.content,
-                    isChecked: values.isChecked
+                    let promise = createContents.save();
 
-                };
+                    promise.then(
+                        doc => {
+                            console.log('content doc here', doc)
+                        }
 
-                console.log('contentObjDatabase here :', contentObjDatabase)
-
-                var createContents = new contentTableModel(contentObjDatabase);
-                createContents.save(function (err, contentData) {
-                    if (err) return handleError(err);
-                    console.log(contentData)
+                    )
+                        .catch(
+                            err =>
+                                console.log('error', err)
+                        )
                 });
+        }
+    )
+        .then(
+            doc => {
+                return doc._id;
             }
         )
-
-    })
-
-
-    return createNotes
+        .catch(
+            err => console.log('error',err)
+        )
 
 }
 
-exports.findImageContent = function(notesId) {
-    return noteAttachmentModel.find({notesID:notesId}).exec()
+exports.findImageContent = function (notesId) {
+    return noteAttachmentModel.find({ notesID: notesId }).exec()
 }
 
 //testing purpose
