@@ -32,10 +32,10 @@ const storage = multer.diskStorage({
 
         cb(null, newFilename);
 
-        db.createFiles(imageId, req.session.userId,req.session.notesId,file.originalname,newFilename,file.mimetype);
+        db.createFiles(imageId, req.session.userId, req.params.notesId, file.originalname, newFilename, file.mimetype)
 
         console.log(req.session.imageIds)
-    },
+    }
 });
 
 // create the multer instance that will be used to upload/save the file
@@ -71,11 +71,21 @@ app.post('/signup', function (req, res) {
     //db.findAccount(req.body.name); //testing purpose
 })
 
-app.post('/fileupload', requiresLogin, upload.array('selectedFile'), (req, res) => {
+app.post('/fileupload/:notesId', requiresLogin, upload.array('selectedFile'), (req, res) => {
 
-    res.status(200).json({message11: req.session.imageIds})
+    console.log('req param notesid here->>>>>>>>>>@@@@@@@@@@@@@############',req.param.notesId)
 
+
+    db.findImageContent(req.params.notesId).then(
+        imageDoc => {
+
+            console.log('imagedoc here ->>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###########' , imageDoc)
+            return res.status(200).json({ message11: imageDoc })
+        }
+        
+    )
 });
+
 
 app.get('/notes1/:notesId', requiresLogin, function (req, res) {
 
@@ -90,13 +100,13 @@ app.get('/notes1/:notesId', requiresLogin, function (req, res) {
                     .then(
                         doc => {
                             db.findImageContent(req.params.notesId)
-                            .then(
-                                imageDoc => {
-                                    console.log('imge doc here => #########################3333333333',imageDoc)
+                                .then(
+                                    imageDoc => {
+                                        console.log('imge doc here => #########################3333333333', imageDoc)
 
-                                    return res.status(200).json({ message: doc, message1: notesTitle ,message2: imageDoc}) 
-                                }     
-                            )
+                                        return res.status(200).json({ message: doc, message1: notesTitle, message2: imageDoc })
+                                    }
+                                )
                         }
                     )
             }
@@ -105,15 +115,15 @@ app.get('/notes1/:notesId', requiresLogin, function (req, res) {
 })
 
 
-app.get('/assets/:imageId',function(req,res) {
+app.get('/assets/:imageId', function (req, res) {
 
-    console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$',req.params.imageId)
-    
+    console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$', req.params.imageId)
+
     // console.log('res file here->>>>>>>>>>>>>>>>>>>>',res.sendFile(req.params.imageId, { root: path.join(__dirname, './assets') })) 
     res.sendFile(__dirname + "/assets/" + req.params.imageId)
     // fs.readFile(__dirname + "/assets/" + req.params.imageId, "utf8", function(err, data){
     //     if(err) throw err;
-    
+
     //     res.send(data)
 
     // });
@@ -191,15 +201,44 @@ app.get('/hello', (req, res) => {
 */
 
 app.post('/addnotes', requiresLogin, function (req, res) {
-    console.log(req.body);
+    console.log('add notes req.body ->>>>>>>>>>>>>>>>>>$$$$$$$$$$$$$$$$$$$$$$$$$$$$$', req.body);
+
     req.body.userId = req.session.userId;
+    contentAray = req.body.values
 
-    let notesId = db.createNotes(req.body)
+    db.createNotes(req.body)
+        .then(
+            (notesBody) => {
 
-    console.log('notes id here ------------------------------>>>>>>>>>>> #############', notesId)
-    req.session.notesId = notesId;
-    res.status(200).json({ message :  notesId})
+                contentAray.map(
+                    content => {
+                        content.notesID = notesBody._id
+                    }
+                )
 
+                if (contentAray.length > 0) {
+                    db.createContent(contentAray)
+                        .then(
+                            doc => {
+                                return res.status(200).json({ message: notesBody._id })
+
+                            }
+                        )
+                        .catch(
+                            (err) =>
+                                console.log('error: ', err)
+
+                        )
+                }
+                else
+                    return res.status(200).json({ message: notesBody._id })
+
+            }
+        )
+        .catch(
+            (err) =>
+                console.log('error: ', err)
+        )
 })
 
 app.post('/checkuser', function (req, res) {
@@ -209,14 +248,14 @@ app.post('/checkuser', function (req, res) {
 
 })
 
-app.delete('/deletenotes/:id', requiresLogin,function (req, res) {
+app.delete('/deletenotes/:id', requiresLogin, function (req, res) {
 
     db.deleteNotes(req.params.id)
 
     res.end()
 })
 
-app.put('/updatenotes', requiresLogin,function (req, res) {
+app.put('/updatenotes', requiresLogin, function (req, res) {
     console.log('updates here', req.body);
 
     req.body.deletedContent.map(
@@ -302,7 +341,7 @@ app.post('/changepassword', requiresLogin, function (req, res) {
 
 })
 
-app.all('*',requiresLogin, function (req, res) {
+app.all('*', requiresLogin, function (req, res) {
     let indexPath = path.resolve(__dirname + '/../../public/index.html')
     res.sendFile(indexPath)
 })

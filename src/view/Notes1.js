@@ -29,15 +29,30 @@ class Notes1 extends React.Component {
     getFiles(e) {
         e.preventDefault();
 
-        this.setState({ selectedFile: e.target.files })
+        let formData = new FormData();
 
-        message.success('files has been uploaded please submit to complete the process', 5)
+        for (var i in e.target.files) {
+            if (!isNaN(i)) {
+                formData.append('selectedFile', e.target.files[i]);
+            }
+        }
+
+        console.log('selectes file here : -----  ', formData)
+
+        axios.post('http://localhost:3002/fileupload/' + this.props.match.params.notesId, formData)
+            .then((result) => {
+                console.log('imageid result->>>>>>>############$$$$$$$$$$', result.data.message11)
+
+                this.setState({ imageContentIds: result.data.message11 })
+            })
+            .catch(error => { alert(error) })
+
     }
+
 
     componentWillMount() {
 
         console.log('here', this.props.match.params.notesId)
-
 
         axios.get('http://localhost:3002/notes1/' + this.props.match.params.notesId)
             .then(res => {
@@ -249,12 +264,16 @@ class Notes1 extends React.Component {
                                                 (
                                                     <Card>
                                                         <Row>
-                                                            <h3><center>Uploads here:</center></h3>
-                                                            <center><Button>Add More
-                                                                <Icon type='plus' />
-                                                            </Button></center>
-                                                            <br/>
+                                                            <center>
+                                                                <Button size='large' onClick={this.uploadFile.bind(this)} >
+                                                                    <Icon type="plus" />Add More
+                                                                    <Input id="hiddeninput" onChange={this.getFiles.bind(this)}
+                                                                        accept='.jpg,.png,.jpeg'
+                                                                        type="file" hidden multiple />
+                                                                </Button>
+                                                            </center>
                                                         </Row>
+                                                        <br />
                                                         {
                                                             this.state.imageContentIds.map(
                                                                 (image, index) => {

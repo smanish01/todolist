@@ -98,7 +98,7 @@ class Addnotes extends React.Component {
                 .then(response => {
 
 
-                    console.log('add notes id here ->>>>>>>>>>>>>>.' + response.data.message)
+                    console.log('add notes id here ->>>>>>>>>>>>>>' + response.data.message)
 
                     let formData = new FormData();
 
@@ -110,9 +110,9 @@ class Addnotes extends React.Component {
 
                     console.log('selectes file here : -----  ', formData)
 
-                    axios.post('http://localhost:3002/fileupload', formData)
+                    axios.post('http://localhost:3002/fileupload/'+response.data.message, formData)
                         .then((result) => {
-                            console.log('imageid result->>>>>>>############$$$$$$$$$$'+result.data.message11)
+                            console.log('imageid result->>>>>>>############$$$$$$$$$$',result.data.message11)
                         });
 
                 })

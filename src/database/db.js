@@ -1,288 +1,99 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-mongoose.connect('mongodb://localhost/database');
-mongoose.Promise = global.Promise;
-const saltRounds = 10;
-//Get the default connection
-var db = mongoose.connection;
-//Bind connection to error event (to get notification of connection errors)
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+const userCollection = require('../database/userCollection')
+const notesCollection = require('../database/notesCollection');
+const contentCollection = require('../database/contentCollection')
+const noteAttachmentCollection = require('../database/noteAttachmentCollection')
 
-//defining the schema
-var userTableSchema = new mongoose.Schema({
-
-    userName: String,
-    name: String,
-    emailId: {
-        type: String,
-        unique: true
-    },
-    // 'password' will be hashed 
-    password: String,
-    profilePhoto: Buffer
-})
-
-var notesTableSchema = new mongoose.Schema({
-
-    // id of the owner
-    uId: String,
-    title: String,
-    createdAt: {
-        type: Date,
-        default: Date.now()
-    },
-    updatedAt: Date,
-    deletedAt: Date,
-    //collaborators of the note
-    sharedWith: Array
-
-})
-
-
-
-var contentTableSchema = new mongoose.Schema({
-
-    // the id of the note it is present in
-    notesID: String,
-    content: String,
-    isChecked: {
-        type: Boolean,
-        default: false
-    }
-
-})
-
-var noteAttachmentSchemaHandle = new mongoose.Schema({
-    imageId: String,
-    uId: String,
-    notesID: String,
-    originalName: String,
-    savedName: String,
-    mimeType: String
-})
-
-
-
-//defining the model
-var userTableModel = mongoose.model('userTableModel', userTableSchema);
-var notesTableModel = mongoose.model('notesTableModel', notesTableSchema);
-var contentTableModel = mongoose.model('contentTableModel', contentTableSchema);
-var noteAttachmentModel = mongoose.model('noteAttachmentModel', noteAttachmentSchemaHandle);
-
-
-
+/*****************user functions start *********************************************************/
 
 exports.createAccount = function (userObj) {
-
-    userObj.password = bcrypt.hashSync(userObj.password, saltRounds);
-    // console.log(userObj);
-    var createAccount = new userTableModel(userObj);
-    createAccount.save(function (err) {
-        if (err) throw err
-        // saved!
-    });
-
-}
-
-exports.createFiles = function (imageId, userId, notesId, originalname, newFilename, mimetype) {
-
-    let fileObjDatabase = {
-        imageId: imageId,
-        uId: userId,
-        notesID: notesId,
-        originalName: originalname,
-        savedName: newFilename,
-        mimeType: mimetype
-    }
-
-    let fileObj = new noteAttachmentModel(fileObjDatabase);
-
-    fileObj.save(function (err, fileData) {
-
-        //files save
-    })
-
-    return fileObj.imageId;
-}
-
-exports.createNotes = function (notesObj) {
-    console.log(notesObj);
-
-    //creating notes objects
-
-    var createNotes = new notesTableModel(
-        {
-            uId: notesObj.userId,
-            title: notesObj.notes,
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-        }
-    );
-
-    let promise = createNotes.save()
-
-    promise.then(
-
-        (notesData) => {
-
-            //map the notesObj.values for content values
-
-            notesObj.values.map(
-                (values) => {
-
-                    var createContents = new contentTableModel({
-                        notesID: notesData._id,
-                        content: values.content,
-                        isChecked: values.isChecked
-                    });
-
-                    let promise = createContents.save();
-
-                    promise.then(
-                        doc => {
-                            console.log('content doc here', doc)
-                        }
-
-                    )
-                        .catch(
-                            err =>
-                                console.log('error', err)
-                        )
-                });
-        }
-    )
-        .then(
-            doc => {
-                return doc._id;
-            }
-        )
-        .catch(
-            err => console.log('error',err)
-        )
-
-}
-
-exports.findImageContent = function (notesId) {
-    return noteAttachmentModel.find({ notesID: notesId }).exec()
-}
-
-//testing purpose
-// exports.findAccount = function (name) {
-//     userTableModel.find({ name: name }, (err, doc) => {
-//         if (err) throw err
-//         console.log(doc);
-//     })
-// }
-
-exports.checkCredentials = function (userObj) {
-    return userTableModel.findOne({ emailId: userObj.emailId }).exec();
-}
-
-exports.findNotes = function (userId) {
-
-    return notesTableModel.find({ uId: userId, deletedAt: null }, (err, doc) => {
-        if (err) throw err
-        console.log('find notes here', doc);
-    })
-}
-
-exports.findContent = function (notesId) {
-
-    return contentTableModel.find({ notesID: notesId }, (err, doc) => {
-        if (err) throw err
-        console.log('find contents here', doc);
-    })
-}
-
-exports.findNotesTitle = function (notesId, userId) {
-
-    return notesTableModel.findOne({ uId: userId, _id: notesId }, (err, doc) => {
-        if (err) throw err
-        console.log('find notes here', doc);
-    })
-}
-
-exports.updateNotesTitle = function (notesId, notesTitle) {
-    var query = { '_id': notesId };
-    notesTableModel.findByIdAndUpdate(query, { title: notesTitle, updatedAt: Date.now() }, (err, doc) => {
-        if (err) throw err
-        console.log('update notes here', doc);
-    })
-}
-
-// exports.updateContent = function(contentObj) {
-
-//     contentTableModel.findById(contentObj._id, function (err, content) {
-//         if (err) return handleError(err);
-
-//         content.content = contentObj.content;
-//         content.isChecked = contentObj.isChecked;
-//         content.save(function (err, updatedContent) {
-//           if (err) return handleError(err);
-//         //   res.send(updatedTank);
-//         console.log(updatedContent);
-//         });
-//       });
-
-// } 
-
-exports.updateContent = function (contentObj) {
-
-    var query = { '_id': contentObj._id };
-    newContentObj = contentObj;
-    contentTableModel.findOneAndUpdate(query, newContentObj, { upsert: true }, function (err, doc) {
-        if (err) throw err
-        console.log(doc);
-        // return res.send("succesfully saved");
-    });
-
-}
-
-exports.createContentByUpdate = function (contentObj, notesID) {
-
-    var contentObjDatabase = {
-        notesID: notesID,
-        content: contentObj.content,
-        isChecked: contentObj.isChecked
-
-    };
-
-    console.log('contentObjDatabase here :', contentObjDatabase)
-
-    var createContents = new contentTableModel(contentObjDatabase);
-    createContents.save(function (err, contentData) {
-        if (err) throw err
-        console.log(contentData)
-    });
-}
-
-
-exports.deleteContent = function (id) {
-    contentTableModel.deleteOne({ _id: id }, function (err) {
-        if (err) throw err
-        // deleted at most one document
-    });
-}
-
-exports.deleteNotes = function (id) {
-    notesTableModel.findOneAndUpdate({ _id: id, deletedAt: null }, { deletedAt: Date.now() }, function (err) {
-        if (err) throw err
-        // deleted at most one document
-    });
+    return userCollection.createAccount(userObj);
 }
 
 exports.findUserInfo = function (id) {
-    return userTableModel.findOne({ _id: id }).exec();
+    return userCollection.findUserInfo(id)
 }
 
 exports.changePassword = function (id, newPassword) {
+    return userCollection.changePassword(id, newPassword);
+}
 
-    return userTableModel.findOneAndUpdate(id, { password: bcrypt.hashSync(newPassword, saltRounds) }, function (err, doc) {
-        console.log(doc);
-    })
-
+exports.checkCredentials = function (userObj) {
+    return userCollection.checkCredentials(userObj)
 }
 
 exports.checkEmail = function (emailId) {
-    return userTableModel.findOne({ emailId: emailId }).exec();
+    return userCollection.checkEmail(emailId);
 }
+
+/*****************user functions ends *********************************************************/
+
+
+/************************************notes function starts *********************************************/
+exports.createNotes = function (notesObj) {
+    return notesCollection.createNotes(notesObj)
+}
+
+exports.findNotes = function (userId) {
+    return notesCollection.findNotes(userId);
+}
+
+exports.findNotesTitle = function (notesId, userId) {
+    return notesCollection.findNotesTitle(notesId, userId)
+}
+
+exports.updateNotesTitle = function (notesId, notesTitle) {
+    return notesCollection.updateNotesTitle(notesId, notesTitle);
+}
+
+exports.deleteNotes = function (id) {
+    return notesCollection.deleteNotes(id)
+}
+
+/************************************notes function ends *********************************************/
+
+
+
+/************************************content function starts *********************************************/
+
+exports.createContent = function (contentArray) {
+    return contentCollection.createContent(contentArray);
+}
+
+exports.findContent = function (notesId) {
+    return contentCollection.findContent(notesId);
+}
+
+exports.updateContent = function (contentObj) {
+    return contentCollection.updateContent(contentObj);
+}
+
+exports.createContentByUpdate = function (contentObj, notesID) {
+    return contentCollection.createContentByUpdate(contentObj, notesID)
+}
+
+exports.deleteContent = function (id) {
+    return contentCollection.deleteContent(id);
+
+}
+
+
+/************************************content function ends *********************************************/
+
+
+
+/*********************************noteAttachment starts **********************************************************/
+
+exports.createFiles = function (imageId, userId, notesId, originalname, newFilename, mimetype) {
+
+    return noteAttachmentCollection.createFiles(imageId, userId, notesId, originalname, newFilename, mimetype)
+}
+
+exports.findImageContent = function (notesId) {
+    return noteAttachmentCollection.findImageContent(notesId);
+}
+
+exports.deleteImage = function(notesId, imageArray){
+    return noteAttachmentCollection.deleteImage(notesId, imageArray)
+}
+
+/*********************************noteAttachment ends **********************************************************/
