@@ -271,7 +271,6 @@ app.post('/addnotes', requiresLogin, function (req, res) {
                         .then(
                             doc => {
                                 return res.status(200).json({ message: notesBody._id })
-
                             }
                         )
                         .catch(
