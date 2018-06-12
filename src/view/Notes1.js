@@ -69,6 +69,40 @@ class Notes1 extends React.Component {
             });
     }
 
+
+    deleteImageIds(id) {
+
+
+        console.log(id);
+
+        var tempNotesArr = _.clone(this.state.imageContentIds)
+
+        var index = -1;
+
+        tempNotesArr.map(
+            (value, i) => {
+                if (value.imageId == id)
+                    index = i
+            }
+        )
+
+        //removing notes from notesList
+
+        console.log(index)
+        if (index > -1) {
+            tempNotesArr.splice(index, 1);
+        }
+
+        this.setState({ imageContentIds: tempNotesArr })
+
+        axios.delete('http://localhost:3002/deleteimage/' + id)
+            .then(
+                res => {
+                    console.log('deleted image here ->>>>>>>>>>>>>>>>>>>>' + res.data.message)
+                }
+            )
+    }
+
     createUI() {
         return this.state.values.map((el, i) =>
 
@@ -253,27 +287,31 @@ class Notes1 extends React.Component {
                                             </Col>
                                             <Col span={2}></Col>
                                             <Col span={11}>
-                                                <Button type="primary" htmlType="submit" className="login-form-button">Update</Button>
+                                                <Button onClick={this.uploadFile.bind(this)} className="login-form-button" >
+                                                    <Icon type="plus" />Add Images
+                                                                    <Input id="hiddeninput" onChange={this.getFiles.bind(this)}
+                                                        accept='.jpg,.png,.jpeg'
+                                                        type="file" hidden multiple />
+                                                </Button>
                                             </Col>
                                         </Row>
                                     </FormItem>
+
                                     <FormItem>
-                                        {
-                                            (this.state.imageContentIds.length > 0)
-                                                ?
-                                                (
+                                        <Button type="primary" htmlType="submit" className="login-form-button">Update</Button>
+                                    </FormItem>
+
+                                    {
+                                        (this.state.imageContentIds.length > 0)
+                                            ?
+                                            (
+
+
+                                                <FormItem>
                                                     <Card>
                                                         <Row>
-                                                            <center>
-                                                                <Button size='large' onClick={this.uploadFile.bind(this)} >
-                                                                    <Icon type="plus" />Add More
-                                                                    <Input id="hiddeninput" onChange={this.getFiles.bind(this)}
-                                                                        accept='.jpg,.png,.jpeg'
-                                                                        type="file" hidden multiple />
-                                                                </Button>
-                                                            </center>
+                                                            <h3><center>Uploads here:</center></h3>
                                                         </Row>
-                                                        <br />
                                                         {
                                                             this.state.imageContentIds.map(
                                                                 (image, index) => {
@@ -283,9 +321,14 @@ class Notes1 extends React.Component {
                                                                             <Card.Grid style={gridStyle}>
                                                                                 {console.log('mbcsdghvs#####################', image.imageId)}
 
-                                                                                <a href={'http://localhost:3002/assets/' + image.imageId} download>
+                                                                                
+                                                                                    <Icon type="delete" style={{ fontSize: 18, color: '#f5222d' }} onClick={this.deleteImageIds.bind(this, image.imageId)} />
+                                                                                
+                                                                                <a href={'http://localhost:3002/assets/' + image.imageId} download={image.originalName}>
                                                                                     <img src={'http://localhost:3002/assets/' + image.imageId} height={100} width={100} />
                                                                                 </a>
+
+
                                                                             </Card.Grid>
                                                                         </div>
                                                                     )
@@ -294,14 +337,15 @@ class Notes1 extends React.Component {
                                                             )
                                                         }
                                                     </Card>
-                                                )
-                                                :
-                                                (
-                                                    <div>
-                                                    </div>
-                                                )
-                                        }
-                                    </FormItem>
+                                                </FormItem>
+
+                                            )
+                                            :
+                                            (
+                                                <div>
+                                                </div>
+                                            )
+                                    }
                                     <FormItem>
                                         <Button type='danger' onClick={this.handleDelete.bind(this)} className="login-form-button">Delete Notes</Button>
                                     </FormItem>
@@ -349,6 +393,7 @@ class Notes1 extends React.Component {
                                                             return (
                                                                 <div key={index} >
                                                                     <Card.Grid style={gridStyle}>
+
                                                                         {console.log('mbcsdghvs#####################', image.imageId)}
 
                                                                         <a href={'http://localhost:3002/assets/' + image.imageId} download>

@@ -92,8 +92,8 @@ exports.findImageContent = function (notesId) {
     return noteAttachmentCollection.findImageContent(notesId);
 }
 
-exports.deleteImage = function(notesId, imageArray){
-    return noteAttachmentCollection.deleteImage(notesId, imageArray)
+exports.deleteImage = function(imageId){
+    return noteAttachmentCollection.deleteImage(imageId)
 }
 
 /*********************************noteAttachment ends **********************************************************/

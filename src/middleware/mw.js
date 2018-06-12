@@ -2,8 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../database/db');
 const bcrypt = require('bcrypt');
-const fs = require('fs');
 const session = require('express-session');
+const fs = require('fs');
 const MongoDBStore = require('connect-mongodb-session')(session);
 var mongooose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
@@ -65,24 +65,37 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.post('/signup', function (req, res) {
 
-    db.createAccount(req.body);
-
-    res.end()
+    db.createAccount(req.body)
+    .then(
+        doc => {
+            return res.status(200).json({message: doc})
+        }
+    )
+    .catch(
+        err => {
+            return res.status(400).json({message: err})
+        }
+    )
     //db.findAccount(req.body.name); //testing purpose
 })
 
 app.post('/fileupload/:notesId', requiresLogin, upload.array('selectedFile'), (req, res) => {
 
-    console.log('req param notesid here->>>>>>>>>>@@@@@@@@@@@@@############',req.param.notesId)
+    console.log('req param notesid here->>>>>>>>>>@@@@@@@@@@@@@############', req.param.notesId)
 
 
     db.findImageContent(req.params.notesId).then(
         imageDoc => {
 
-            console.log('imagedoc here ->>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###########' , imageDoc)
+            console.log('imagedoc here ->>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###########', imageDoc)
             return res.status(200).json({ message11: imageDoc })
         }
-        
+
+    )
+    .catch(
+        err => {
+            return res.status(400).json({message11: err})
+        }
     )
 });
 
@@ -112,6 +125,11 @@ app.get('/notes1/:notesId', requiresLogin, function (req, res) {
             }
         }
     )
+    .catch(
+        err => {
+            return res.status(400).json({message: err})
+        }
+    )
 })
 
 
@@ -123,7 +141,6 @@ app.get('/assets/:imageId', function (req, res) {
     res.sendFile(__dirname + "/assets/" + req.params.imageId)
     // fs.readFile(__dirname + "/assets/" + req.params.imageId, "utf8", function(err, data){
     //     if(err) throw err;
-
     //     res.send(data)
 
     // });
@@ -151,8 +168,38 @@ app.get('/userinfo', requiresLogin, function (req, res) {
                 }
             }
         )
+        .catch(
+            err => {
+                return res.status(400).json({message: err})
+            }
+        )
 })
 
+app.delete('/deleteimage/:imageId', requiresLogin, function (req, res) {
+
+    db.deleteImage(req.params.imageId)
+        .then(
+            doc => {
+
+                fs.unlink(__dirname + "/assets/" + req.params.imageId, function (error) {
+                    if (error) {
+                        throw error;
+                    }
+                    console.log('Deleted image!!');
+                });
+
+                return res.status(200).json({ message: doc })
+            }
+
+        )
+        .catch(
+            err => {
+                return res.status(400).json({message: err})
+            }
+        )
+
+
+})
 
 
 app.post('/login', function (req, res) {
@@ -166,8 +213,6 @@ app.post('/login', function (req, res) {
                 console.log(req.session, req.sessionID, req.session.userId);
                 return res.status(200).json({ message: 'connected' })
             }
-            else
-                return res.status(200).json({ message: 'wrong credentials' })
         })
         .catch((err) => {
             return res.status(200).json({ message: 'wrong credentials' })
@@ -186,6 +231,11 @@ app.post('/checkemailid', function (req, res) {
                     res.status(200).json({ message: 'already' });
             }
 
+        )
+        .catch(
+            err => {
+                return res.status(400).json({message: err})
+            }
         )
 })
 
@@ -236,8 +286,9 @@ app.post('/addnotes', requiresLogin, function (req, res) {
             }
         )
         .catch(
-            (err) =>
-                console.log('error: ', err)
+            err => {
+                return res.status(400).json({message: err})
+            }
         )
 })
 
@@ -251,8 +302,11 @@ app.post('/checkuser', function (req, res) {
 app.delete('/deletenotes/:id', requiresLogin, function (req, res) {
 
     db.deleteNotes(req.params.id)
-
-    res.end()
+    .then(
+        doc => {
+            return res.status(200).json({deletedNotes : doc})
+        }
+    )
 })
 
 app.put('/updatenotes', requiresLogin, function (req, res) {
@@ -270,8 +324,6 @@ app.put('/updatenotes', requiresLogin, function (req, res) {
     })
 
     db.updateNotesTitle(req.body.notesID, req.body.notesTitle)
-
-    res.end()
 })
 
 

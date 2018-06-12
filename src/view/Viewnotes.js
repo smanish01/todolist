@@ -9,6 +9,7 @@ import addnotes from './Addnotes';
 import { Table, Input, Button, Popconfirm, message } from 'antd';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import axios from 'axios';
+import Moment from 'react-moment';
 const dateFormat = require('dateformat');
 const DateDiff = require('date-diff');
 const gridStyle = {
@@ -135,11 +136,13 @@ class ViewNotes extends React.Component {
                                                     (this.state.notesList[index].createdAt === this.state.notesList[index].updatedAt)
                                                         ?
                                                         (
-                                                            <div> Created At : {dateFormat(this.state.notesList[index].createdAt, 'dddd, mmmm dS, yyyy, h:MM')}</div>
+                                                            // <div> Created At : {dateFormat(this.state.notesList[index].createdAt, 'dddd, mmmm dS, yyyy, h:MM')}</div>
+                                                            <div> Created At : {<Moment fromNow>{this.state.notesList[index].createdAt}</Moment>}</div>
                                                         )
                                                         :
                                                         (
-                                                            <div> Updated At : {dateFormat(this.state.notesList[index].updatedAt, 'dddd, mmmm dS, yyyy, h:MM')}</div>
+                                                        <div> Updated At : {<Moment fromNow>{this.state.notesList[index].updatedAt}</Moment>}</div>
+                                                            // <div> Updated At : {dateFormat(this.state.notesList[index].updatedAt, 'dddd, mmmm dS, yyyy, h:MM')}</div>
                                                         )
                                                 }
                                             </Row>

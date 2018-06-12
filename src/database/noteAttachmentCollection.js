@@ -38,6 +38,6 @@ exports.findImageContent = function (notesId) {
     return noteAttachmentModel.find({ notesID: notesId })
 }
 
-exports.deleteImage = function(notesId, imageArray){
-    return noteAttachmentModel.deleteMany({notesID : notesId},imageArray)
+exports.deleteImage = function(imageId){
+    return noteAttachmentModel.deleteOne({imageId : imageId})
 }
