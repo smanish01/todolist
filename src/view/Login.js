@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import '../App.css';
 import axios from 'axios';
-import { Form, Icon, Input, Button, Checkbox, Alert, message } from 'antd';
+import { Form, Icon, Input, Button, message } from 'antd';
 const FormItem = Form.Item;
 
 class Login extends Component {
@@ -71,7 +70,11 @@ class Login extends Component {
             if (response.data.message == 'wrong credentials')
               message.error('please enter correct credentials')
           })
-          .catch(error => console.log(error));
+          .catch(
+            res => {
+              message.error('error: ', res.data.message)
+            }
+          )
 
       }
     });
@@ -97,9 +100,14 @@ class Login extends Component {
             )}
           </FormItem>
           <FormItem>
-            <Button type="primary" htmlType="submit" className="login-form-button">
-              Log in
+            <Button id="MYID" type="primary" htmlType="submit" className="login-form-button">
+              Log In
           </Button>
+          </FormItem>
+          <FormItem>
+            <Button type="primary" className="login-form-button">
+              Sign In with <Icon type='twitter' />
+            </Button>
           </FormItem>
         </Form>
       </div>

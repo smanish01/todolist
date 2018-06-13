@@ -25,7 +25,7 @@ var config = {
   },
   output: {
     filename: 'bundle.js',
-    path: '/home/trainee9/Desktop/todolist/public/assets/js/'
+    path: '/home/manish/Desktop/todolist/public/assets/js/'
   }
 };
 

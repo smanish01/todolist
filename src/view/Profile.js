@@ -86,6 +86,11 @@ class Profile extends React.Component {
                             message.error('something went wrong')
                     }
                 )
+                .catch(
+                    err => {
+                        message.error('error: ',res.data.message)
+                    }
+                )
 
             form.resetFields();
             this.setState({ visible: false });
@@ -100,6 +105,11 @@ class Profile extends React.Component {
             .then(
                 res => {
                     this.setState({ userInfo: res.data.message })
+                }
+            )
+            .catch(
+                res => {
+                    message.error('error: ',res.data.message)
                 }
             )
     }

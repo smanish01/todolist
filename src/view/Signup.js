@@ -34,6 +34,11 @@ class Signup extends React.Component {
                         }
 
                     })
+                    .catch(
+                        res => {
+                            message.error('error: ',res.data.message)
+                        }
+                    )
             }
             else
                 message.warn('Your password and confirm password is not matching')

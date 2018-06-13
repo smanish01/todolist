@@ -33,8 +33,6 @@ const storage = multer.diskStorage({
         cb(null, newFilename);
 
         db.createFiles(imageId, req.session.userId, req.params.notesId, file.originalname, newFilename, file.mimetype)
-
-        console.log(req.session.imageIds)
     }
 });
 
@@ -135,8 +133,6 @@ app.get('/notes1/:notesId', requiresLogin, function (req, res) {
 
 app.get('/assets/:imageId', function (req, res) {
 
-    console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$', req.params.imageId)
-
     // console.log('res file here->>>>>>>>>>>>>>>>>>>>',res.sendFile(req.params.imageId, { root: path.join(__dirname, './assets') })) 
     res.sendFile(__dirname + "/assets/" + req.params.imageId)
     // fs.readFile(__dirname + "/assets/" + req.params.imageId, "utf8", function(err, data){
@@ -209,7 +205,6 @@ app.post('/login', function (req, res) {
         .then((doc) => {
             if (bcrypt.compareSync(req.body.password, doc.password)) {
                 req.session.userId = doc._id;
-                req.session.imageIds = [];
                 console.log(req.session, req.sessionID, req.session.userId);
                 return res.status(200).json({ message: 'connected' })
             }
@@ -254,7 +249,6 @@ app.post('/addnotes', requiresLogin, function (req, res) {
     console.log('add notes req.body ->>>>>>>>>>>>>>>>>>$$$$$$$$$$$$$$$$$$$$$$$$$$$$$', req.body);
 
     req.body.userId = req.session.userId;
-    contentAray = req.body.values
 
     db.createNotes(req.body)
         .then(
@@ -353,7 +347,11 @@ app.get('/viewnotes', requiresLogin, function (req, res) {
             }
 
         )
-        .catch(err => console.log(err));
+        .catch(
+            err => {
+                return res.status(400).json({message: err})
+            }
+        )
 })
 
 app.post('/logout', requiresLogin, function (req, res) {
@@ -387,9 +385,11 @@ app.post('/changepassword', requiresLogin, function (req, res) {
             else
                 return res.status(200).json({ message: 'not changed' })
         })
-        .catch((err) => {
-            console.log(err)
-        })
+        .catch(
+            err => {
+                return res.status(400).json({message: err})
+            }
+        )
 
 })
 

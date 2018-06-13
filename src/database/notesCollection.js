@@ -66,7 +66,7 @@ exports.updateNotesTitle = function (notesId, notesTitle) {
 }
 
 exports.deleteNotes = function (id) {
-    notesTableModel.findOneAndUpdate({ _id: id, deletedAt: null }, { deletedAt: Date.now() }, function (err) {
+    return notesTableModel.findOneAndUpdate({ _id: id, deletedAt: null }, { deletedAt: Date.now() }, function (err) {
         if (err) throw err
         // deleted at most one document
     });

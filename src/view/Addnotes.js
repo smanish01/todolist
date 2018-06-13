@@ -1,6 +1,4 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Redirect } from 'react-router-dom'
+import React from 'react';
 import '../App.css';
 import axios from 'axios';
 import _ from 'lodash';
@@ -116,7 +114,12 @@ class Addnotes extends React.Component {
                         });
 
                 })
-                .catch(error => { alert(error) });
+                .catch(
+                    res => {
+                        message.error('error: ',res.data.message)
+                    }
+                )
+                
             message.success('successfully submitted')
 
             this.props.history.push('/viewnotes');

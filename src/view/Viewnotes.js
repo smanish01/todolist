@@ -1,17 +1,11 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';
 import '../App.css';
 import _ from 'lodash';
-import { Form, Icon } from 'antd';
 import { Card, Col, Row } from 'antd';
-import view from './Notes1';
-import addnotes from './Addnotes';
-import { Table, Input, Button, Popconfirm, message } from 'antd';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { Icon, Popconfirm, message } from 'antd';
+import {  Link } from 'react-router-dom';
 import axios from 'axios';
 import Moment from 'react-moment';
-const dateFormat = require('dateformat');
-const DateDiff = require('date-diff');
 const gridStyle = {
     width: '25%',
     textAlign: 'center',
@@ -55,6 +49,11 @@ class ViewNotes extends React.Component {
 
         axios.delete('http://localhost:3002/deletenotes/' + id)
             .then(res => console.log(res))
+            .catch(
+                res => {
+                    message.error('error: ',res.data.deleteNotes)
+                }
+            )
         message.success('Successfully Deleted');
     }
 
@@ -72,7 +71,12 @@ class ViewNotes extends React.Component {
                     console.log(this.state.notesList)
                 }
             })
-            .catch(err => console.log(err));
+            .catch(
+                res => {
+                    message.error('error: ',res.data.message)
+                }
+            )
+            
     }
 
     render() {

@@ -1,12 +1,9 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css';
 import _ from 'lodash';
-import { Form, Icon, Button, Avatar, Input, Checkbox, Row, Col, message, Card, Upload } from 'antd';
+import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Card } from 'antd';
 import axios from 'axios';
-import edit from './Notes1';
-import ImageLoader from 'react-load-image';
 const FormItem = Form.Item;
 const gridStyle = {
     width: '50%',
@@ -45,7 +42,11 @@ class Notes1 extends React.Component {
 
                 this.setState({ imageContentIds: result.data.message11 })
             })
-            .catch(error => { alert(error) })
+            .catch(
+                res => {
+                    message.error('error: ',res.data.message)
+                }
+            )
 
     }
 
@@ -64,9 +65,11 @@ class Notes1 extends React.Component {
                 console.log('image file here->>>>>>>>>>>>>>>>>', this.state.imageContentIds)
 
             })
-            .catch(err => {
-                message.error(err + ' unauthorized access');
-            });
+            .catch(
+                res => {
+                    message.error('error: ',res.data.message)
+                }
+            )
     }
 
 
@@ -99,6 +102,11 @@ class Notes1 extends React.Component {
             .then(
                 res => {
                     console.log('deleted image here ->>>>>>>>>>>>>>>>>>>>' + res.data.message)
+                }
+            )
+            .catch(
+                res => {
+                    message.error('error: ',res.data.message)
                 }
             )
     }
@@ -199,7 +207,11 @@ class Notes1 extends React.Component {
 
             axios.put('http://localhost:3002/updatenotes', noteObj)
                 .then(res => console.log(res))
-                .catch(err => console.log(err))
+                .catch(
+                    res => {
+                        message.error('error: ',res.data.message)
+                    }
+                )
 
             message.success('notes updated successfully')
             this.props.history.push('/viewnotes')
@@ -260,6 +272,11 @@ class Notes1 extends React.Component {
         event.preventDefault();
         axios.delete('http://localhost:3002/deletenotes/' + this.props.match.params.notesId)
             .then(res => console.log(res))
+            .catch(
+                res => {
+                    message.error('error: ',res.data.message)
+                }
+            )
 
         message.success('notes deleted successfully')
         this.props.history.push('/viewnotes')
