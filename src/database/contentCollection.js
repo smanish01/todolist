@@ -27,7 +27,7 @@ exports.updateContent = function (contentObj) {
 
     var query = { '_id': contentObj._id };
     newContentObj = contentObj;
-    contentTableModel.findOneAndUpdate(query, newContentObj, { upsert: true }, function (err, doc) {
+    return contentTableModel.findOneAndUpdate(query, newContentObj, { upsert: true }, function (err, doc) {
         if (err) throw err
         console.log(doc);
         // return res.send("succesfully saved");
@@ -47,7 +47,7 @@ exports.createContentByUpdate = function (contentObj, notesID) {
     console.log('contentObjDatabase here :', contentObjDatabase)
 
     var createContents = new contentTableModel(contentObjDatabase);
-    createContents.save(function (err, contentData) {
+    return createContents.save(function (err, contentData) {
         if (err) throw err
         console.log(contentData)
     });
@@ -55,7 +55,7 @@ exports.createContentByUpdate = function (contentObj, notesID) {
 
 
 exports.deleteContent = function (id) {
-    contentTableModel.deleteOne({ _id: id }, function (err) {
+    return contentTableModel.deleteOne({ _id: id }, function (err) {
         if (err) throw err
         // deleted at most one document
     });

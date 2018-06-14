@@ -64,16 +64,16 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.post('/signup', function (req, res) {
 
     db.createAccount(req.body)
-    .then(
-        doc => {
-            return res.status(200).json({message: doc})
-        }
-    )
-    .catch(
-        err => {
-            return res.status(400).json({message: err})
-        }
-    )
+        .then(
+            doc => {
+                return res.status(200).json({ message: doc })
+            }
+        )
+        .catch(
+            err => {
+                return res.status(400).json({ message: err })
+            }
+        )
     //db.findAccount(req.body.name); //testing purpose
 })
 
@@ -90,11 +90,11 @@ app.post('/fileupload/:notesId', requiresLogin, upload.array('selectedFile'), (r
         }
 
     )
-    .catch(
-        err => {
-            return res.status(400).json({message11: err})
-        }
-    )
+        .catch(
+            err => {
+                return res.status(400).json({ message11: err })
+            }
+        )
 });
 
 
@@ -123,15 +123,15 @@ app.get('/notes1/:notesId', requiresLogin, function (req, res) {
             }
         }
     )
-    .catch(
-        err => {
-            return res.status(400).json({message: err})
-        }
-    )
+        .catch(
+            err => {
+                return res.status(400).json({ message: err })
+            }
+        )
 })
 
 
-app.get('/assets/:imageId', function (req, res) {
+app.get('/assets/:imageId', requiresLogin, function (req, res) {
 
     // console.log('res file here->>>>>>>>>>>>>>>>>>>>',res.sendFile(req.params.imageId, { root: path.join(__dirname, './assets') })) 
     res.sendFile(__dirname + "/assets/" + req.params.imageId)
@@ -166,7 +166,7 @@ app.get('/userinfo', requiresLogin, function (req, res) {
         )
         .catch(
             err => {
-                return res.status(400).json({message: err})
+                return res.status(400).json({ message: err })
             }
         )
 })
@@ -190,16 +190,14 @@ app.delete('/deleteimage/:imageId', requiresLogin, function (req, res) {
         )
         .catch(
             err => {
-                return res.status(400).json({message: err})
+                return res.status(400).json({ message: err })
             }
         )
 
 
 })
 
-
 app.post('/login', function (req, res) {
-
 
     db.checkCredentials(req.body)
         .then((doc) => {
@@ -229,7 +227,7 @@ app.post('/checkemailid', function (req, res) {
         )
         .catch(
             err => {
-                return res.status(400).json({message: err})
+                return res.status(400).json({ message: err })
             }
         )
 })
@@ -249,6 +247,8 @@ app.post('/addnotes', requiresLogin, function (req, res) {
     console.log('add notes req.body ->>>>>>>>>>>>>>>>>>$$$$$$$$$$$$$$$$$$$$$$$$$$$$$', req.body);
 
     req.body.userId = req.session.userId;
+
+    var contentAray = req.body.values;
 
     db.createNotes(req.body)
         .then(
@@ -270,7 +270,9 @@ app.post('/addnotes', requiresLogin, function (req, res) {
                         )
                         .catch(
                             (err) =>
-                                console.log('error: ', err)
+                                {
+                                   return res.status(400).json({ message: err })
+                                }
 
                         )
                 }
@@ -281,7 +283,8 @@ app.post('/addnotes', requiresLogin, function (req, res) {
         )
         .catch(
             err => {
-                return res.status(400).json({message: err})
+                // return res.status(400).json({ message: err })
+                console.log('err here------->>>>>>>>>>>>>%%%%%%%%%%%%%%%%%%%%%%%%',err)
             }
         )
 })
@@ -290,17 +293,19 @@ app.post('/checkuser', function (req, res) {
 
     if ((req.session && req.sessionID) && req.session.userId)
         return res.status(200).json({ message: 'connected' })
+    else
+        return res.status(400).json({ message: 'not connected' })
 
 })
 
 app.delete('/deletenotes/:id', requiresLogin, function (req, res) {
 
     db.deleteNotes(req.params.id)
-    .then(
-        doc => {
-            return res.status(200).json({deletedNotes : doc})
-        }
-    )
+        .then(
+            doc => {
+                return res.status(200).json({ deletedNotes: doc })
+            }
+        )
 })
 
 app.put('/updatenotes', requiresLogin, function (req, res) {
@@ -349,7 +354,7 @@ app.get('/viewnotes', requiresLogin, function (req, res) {
         )
         .catch(
             err => {
-                return res.status(400).json({message: err})
+                return res.status(400).json({ message: err })
             }
         )
 })
@@ -387,13 +392,13 @@ app.post('/changepassword', requiresLogin, function (req, res) {
         })
         .catch(
             err => {
-                return res.status(400).json({message: err})
+                return res.status(400).json({ message: err })
             }
         )
 
 })
 
-app.all('*', requiresLogin, function (req, res) {
+app.all('*', function (req, res) {
     let indexPath = path.resolve(__dirname + '/../../public/index.html')
     res.sendFile(indexPath)
 })

@@ -32,13 +32,12 @@ class App extends Component {
           // message.success('you are connected');
           this.setState({ isLoggedIn: true })
         }
-        else
+        else if (res.data.message == 'not connected')
           message.error('you are not connected, please login');
       })
-      .catch(err => console.log(err))
   }
 
-
+  
   logout() {
     // event.preventDefault();
     axios.post('http://localhost:3002/logout')
@@ -113,10 +112,10 @@ class App extends Component {
 
             <Route exact path='/' render={(props) => <Login {...props} updateLog={this.updateLoggedInState.bind(this)} />} />
             <Route exact path='/signup' render={(props) => <Signup {...props} />} />
-            <Route exact path='/viewnotes'  render={(props) => <Viewnotes {...props} />} />
+            <Route exact path='/viewnotes' render={(props) => <Viewnotes {...props} />} />
             <Route exact path='/addnotes' render={(props) => <Addnotes {...props} />} />
-            <Route exact path='/viewnotes/:notesId/view'  render={(props) => <Notes1 {...props}  />} />
-            <Route exact path='/viewnotes/:notesId/edit'  render={(props) => <Notes1 {...props}  />} />
+            <Route exact path='/viewnotes/:notesId/view' render={(props) => <Notes1 {...props} />} />
+            <Route exact path='/viewnotes/:notesId/edit' render={(props) => <Notes1 {...props} />} />
             <Route exact path='/profile' render={(props) => <Profile {...props} />} />
 
           </Switch>

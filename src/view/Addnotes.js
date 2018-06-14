@@ -111,12 +111,17 @@ class Addnotes extends React.Component {
                     axios.post('http://localhost:3002/fileupload/'+response.data.message, formData)
                         .then((result) => {
                             console.log('imageid result->>>>>>>############$$$$$$$$$$',result.data.message11)
-                        });
+                        })
+                        .catch(
+                            result => {
+                                message.error('error: ', result.data.message11)
+                            }
+                        )
 
                 })
                 .catch(
-                    res => {
-                        message.error('error: ',res.data.message)
+                    response => {
+                        console.log('res here',response.data.message)
                     }
                 )
                 

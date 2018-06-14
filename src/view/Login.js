@@ -105,7 +105,7 @@ class Login extends Component {
           </Button>
           </FormItem>
           <FormItem>
-            <Button type="primary" className="login-form-button">
+            <Button className="login-form-button">
               Sign In with <Icon type='twitter' />
             </Button>
           </FormItem>
