@@ -127,7 +127,7 @@ class Addnotes extends React.Component {
                 
             message.success('successfully submitted')
 
-            this.props.history.push('/viewnotes');
+            this.props.history.push('/viewnote');
         }
         else
             message.warn('please fill all the text boxes')

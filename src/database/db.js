@@ -25,6 +25,10 @@ exports.checkEmail = function (emailId) {
     return userCollection.checkEmail(emailId);
 }
 
+exports.findOrCreateUser = function(emailId){
+    return userCollection.findOrCreateUser(emailId);
+}
+
 /*****************user functions ends *********************************************************/
 
 

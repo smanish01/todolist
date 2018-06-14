@@ -14,6 +14,36 @@ const path = require('path');
 const multer = require('multer');
 const uuidv4 = require('uuid/v4');
 
+
+var passport = require('passport')
+    , TwitterStrategy = require('passport-twitter').Strategy;
+
+passport.use(new TwitterStrategy({
+    consumerKey: 'EGtez0mPOP7Bdl8sil6hB06B4',
+    consumerSecret: 'FVwzDX5UmKeOYmJPgWz0DEIhjaliXBv1139g3OgpsEspLiyLpP',
+    callbackURL: "http://localhost:3002/auth/twitter/callback",
+    includeEmail: true
+},
+    function (token, tokenSecret, profile, done) {
+        if (profile) {
+            user = profile;
+
+            return done(null, user);
+        }
+        else {
+            return done(null, false);
+        }
+    }
+));
+
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+});
+
 // configure storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -51,6 +81,10 @@ app.use(session({
     cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 }
 }))
 
+app.use(passport.initialize());
+
+
+
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -61,7 +95,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 
-app.post('/signup', function (req, res) {
+app.post('/createaccount', function (req, res) {
 
     db.createAccount(req.body)
         .then(
@@ -76,6 +110,18 @@ app.post('/signup', function (req, res) {
         )
     //db.findAccount(req.body.name); //testing purpose
 })
+
+app.get('/auth/twitter', passport.authenticate('twitter'));
+
+// Twitter will redirect the user to this URL after approval.  Finish the
+// authentication process by attempting to obtain an access token.  If
+// access was granted, the user will be logged in.  Otherwise,
+// authentication has failed.
+app.get('/auth/twitter/callback',
+    passport.authenticate('twitter', {
+        successRedirect: '/viewnote',
+        failureRedirect: '/'
+    }));
 
 app.post('/fileupload/:notesId', requiresLogin, upload.array('selectedFile'), (req, res) => {
 
@@ -96,7 +142,6 @@ app.post('/fileupload/:notesId', requiresLogin, upload.array('selectedFile'), (r
             }
         )
 });
-
 
 app.get('/notes1/:notesId', requiresLogin, function (req, res) {
 
@@ -269,10 +314,9 @@ app.post('/addnotes', requiresLogin, function (req, res) {
                             }
                         )
                         .catch(
-                            (err) =>
-                                {
-                                   return res.status(400).json({ message: err })
-                                }
+                            (err) => {
+                                return res.status(400).json({ message: err })
+                            }
 
                         )
                 }
@@ -284,7 +328,7 @@ app.post('/addnotes', requiresLogin, function (req, res) {
         .catch(
             err => {
                 // return res.status(400).json({ message: err })
-                console.log('err here------->>>>>>>>>>>>>%%%%%%%%%%%%%%%%%%%%%%%%',err)
+                console.log('err here------->>>>>>>>>>>>>%%%%%%%%%%%%%%%%%%%%%%%%', err)
             }
         )
 })
@@ -398,23 +442,51 @@ app.post('/changepassword', requiresLogin, function (req, res) {
 
 })
 
-app.all('*', function (req, res) {
-    let indexPath = path.resolve(__dirname + '/../../public/index.html')
-    res.sendFile(indexPath)
-})
-
 
 function requiresLogin(req, res, next) {
-    console.log(req.session, req.sessionID, req.session.userId);
+    // console.log(req.session, req.sessionID, req.session.userId);
+
+    console.log('twitter email here ->>>>!!!!!!!!!!@@@@@@@@@@##########^^^%%%%%%%%%%%%', req.session.passport.user.emails[0].value)
+
     if ((req.session && req.sessionID) && req.session.userId)
         return next();
+
+    else if (req.session.passport.user.emails[0].value) {
+        db.findOrCreateUser(req.session.passport.user.emails[0].value)
+            .then(
+                doc => {
+
+                    console.log('doc here->>>>>>>>>>>>>>>>>>>>>>>>>>>',doc)
+
+                    console.log('req session here->>>>>>>>>>>>>>>>>>>>>>>>>>>',req.session)
+                    req.session.userId = doc._id;
+                    return next()
+                }
+
+            )
+            .catch(
+                res => {
+                    var err = new Error('You must be logged in to view this page.');
+                    err.status = 401;
+                    return next(err);
+
+                }
+            )
+    }
     else {
         var err = new Error('You must be logged in to view this page.');
         err.status = 401;
         return next(err);
 
     }
+
+
 };
+
+app.all('*', function (req, res) {
+    let indexPath = path.resolve(__dirname + '/../../public/index.html')
+    res.sendFile(indexPath)
+})
 
 app.listen(3002, function () {
     console.log('Server started')

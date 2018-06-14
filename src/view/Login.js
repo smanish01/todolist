@@ -64,7 +64,7 @@ class Login extends Component {
               // console.log('after updatelog')
               // console.log('here is this props his',this.props);
 
-              this.props.history.push('/viewnotes');
+              this.props.history.push('/viewnote');
 
             }
             if (response.data.message == 'wrong credentials')
@@ -100,14 +100,16 @@ class Login extends Component {
             )}
           </FormItem>
           <FormItem>
-            <Button id="MYID" type="primary" htmlType="submit" className="login-form-button">
+            <Button type="primary" htmlType="submit" className="login-form-button">
               Log In
           </Button>
           </FormItem>
           <FormItem>
-            <Button className="login-form-button">
-              Sign In with <Icon type='twitter' />
-            </Button>
+            <a href="/auth/twitter">
+              <Button className="login-form-button">
+                Sign In with <Icon type='twitter' />
+              </Button>
+            </a>
           </FormItem>
         </Form>
       </div>

@@ -26,7 +26,7 @@ class Signup extends React.Component {
                         if (res.data.message == 'already')
                             message.warn('Email ID is already registered please enter new Email ID');
                         else if (res.data.message == 'not there') {
-                            axios.post('http://localhost:3002/signup', values)
+                            axios.post('http://localhost:3002/createaccount', values)
                                 .then(response => console.log(response))
                                 .catch(error => console.log(error));
                             message.success('Signed Up successfully!')

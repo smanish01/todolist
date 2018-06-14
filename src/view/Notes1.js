@@ -214,7 +214,7 @@ class Notes1 extends React.Component {
                 )
 
             message.success('notes updated successfully')
-            this.props.history.push('/viewnotes')
+            this.props.history.push('/viewnote')
         }
         else
             message.warn('please fill all the textboxes')
@@ -279,7 +279,7 @@ class Notes1 extends React.Component {
             )
 
         message.success('notes deleted successfully')
-        this.props.history.push('/viewnotes')
+        this.props.history.push('/viewnote')
     }
 
     render() {
@@ -374,7 +374,7 @@ class Notes1 extends React.Component {
 
                         (
                             <div id='middlePageDesign'>
-                                <Card title={this.state.notes} extra={<Link to={`/viewnotes/${this.props.match.params.notesId}/edit`}><div onClick={this.editable.bind(this, true)}><Icon type="edit" style={{ fontSize: 20, color: '#08c' }} /></div></Link>}>
+                                <Card title={this.state.notes} extra={<Link to={`/viewnote/${this.props.match.params.notesId}/edit`}><div onClick={this.editable.bind(this, true)}><Icon type="edit" style={{ fontSize: 20, color: '#08c' }} /></div></Link>}>
 
                                     <Row>
                                         <Col span={11}>

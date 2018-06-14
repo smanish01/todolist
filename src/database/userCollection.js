@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const findOrCreate = require('mongoose-findorcreate')
 mongoose.connect('mongodb://localhost/database');
 mongoose.Promise = global.Promise;
 const bcrypt = require('bcrypt');
@@ -20,6 +21,8 @@ var userTableSchema = new mongoose.Schema({
     password: String,
     profilePhoto: Buffer
 })
+
+userTableSchema.plugin(findOrCreate);
 
 var userTableModel = mongoose.model('userTableModel', userTableSchema);
 
@@ -44,4 +47,8 @@ exports.changePassword = function (id, newPassword) {
 
 exports.checkEmail = function (emailId) {
     return userTableModel.findOne({ emailId: emailId });
+}
+
+exports.findOrCreateUser = function(emailId) {
+    return userTableModel.findOrCreate({emailId: emailId})
 }

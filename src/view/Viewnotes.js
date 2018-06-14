@@ -21,6 +21,8 @@ class ViewNotes extends React.Component {
         };
     }
 
+    
+
     deleteNotes(id) {
         // e.preventDefault();
 
@@ -88,7 +90,7 @@ class ViewNotes extends React.Component {
                         (
                             <div id='middlePageDesignIcon'>
 
-                                <Link to={'/addnotes'}>
+                                <Link to={'/addnote'}>
                                     <Icon type="plus-circle-o" style={{ fontSize: 150, color: '#08c' }} />
                                 </Link>
                                 <div id='middlePageDesignIconText'>
@@ -124,7 +126,7 @@ class ViewNotes extends React.Component {
                                                 <Col span={2}>
                                                 </Col>
 
-                                                <Link to={`/viewnotes/${notes._id}/view`}>
+                                                <Link to={`/viewnote/${notes._id}/view`}>
                                                         <Col span={2}>
                                                             <Icon type="edit" style={{ fontSize: 18, color: '#08c' }} />
                                                         </Col>
