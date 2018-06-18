@@ -74,8 +74,8 @@ class App extends Component {
                       // defaultSelectedKeys={['1']}
                       style={{ lineHeight: '64px' }}
                     >
-                      <Menu.Item key="1"><Link to={'/viewnotes'}>Viewnotes</Link></Menu.Item>
-                      <Menu.Item key="2"><Link to={'/addnotes'}>Addnotes</Link></Menu.Item>
+                      <Menu.Item key="1"><Link to={'/viewnote'}>Viewnotes</Link></Menu.Item>
+                      <Menu.Item key="2"><Link to={'/addnote'}>Addnotes</Link></Menu.Item>
                       <Menu.Item key="3"><Link to={'/profile'}>Profile</Link></Menu.Item>
                       <Menu.Item key="4"><div onClick={this.logout.bind(this)}> Logout</div></Menu.Item>
                     </Menu>

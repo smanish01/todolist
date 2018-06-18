@@ -42,10 +42,7 @@ exports.createNotes = function (notesObj) {
 
 exports.findNotes = function (userId) {
 
-    return notesTableModel.find({ uId: userId, deletedAt: null }, (err, doc) => {
-        if (err) throw err
-        console.log('find notes here', doc);
-    })
+    return notesTableModel.find({ uId: userId, deletedAt: null })
 }
 
 

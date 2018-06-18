@@ -19,15 +19,14 @@ var passport = require('passport')
     , TwitterStrategy = require('passport-twitter').Strategy;
 
 passport.use(new TwitterStrategy({
-    consumerKey: 'EGtez0mPOP7Bdl8sil6hB06B4',
-    consumerSecret: 'FVwzDX5UmKeOYmJPgWz0DEIhjaliXBv1139g3OgpsEspLiyLpP',
+    consumerKey: 'pvotWMSqluRhCekNauhrfzVIi',
+    consumerSecret: 'sb0stm2Ha01lJl7AYx7bcAFBpLc63Y4m7OZHg72gS7IqojaMXP',
     callbackURL: "http://localhost:3002/auth/twitter/callback",
     includeEmail: true
 },
     function (token, tokenSecret, profile, done) {
         if (profile) {
-            user = profile;
-
+            user = profile;            
             return done(null, user);
         }
         else {
@@ -84,7 +83,6 @@ app.use(session({
 app.use(passport.initialize());
 
 
-
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -117,11 +115,41 @@ app.get('/auth/twitter', passport.authenticate('twitter'));
 // authentication process by attempting to obtain an access token.  If
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
+// app.get('/auth/twitter/callback',
+//     passport.authenticate('twitter', {
+//         successRedirect: '/viewnote',
+//         failureRedirect: '/',
+//     }));
+
 app.get('/auth/twitter/callback',
-    passport.authenticate('twitter', {
-        successRedirect: '/viewnote',
-        failureRedirect: '/'
-    }));
+    function (req, res, next) {
+        passport.authenticate('twitter', function (err, user, info) {
+            if (err) { return next(err); }
+            if (!user) { return res.redirect('/'); }
+            req.logIn(user, function (err) {
+                if (err) { return next(err); }
+
+                // console.log('userinfo here ->>>>>>>>>>>>>>>>>>>', user.emails[0].value)
+
+                db.findOrCreateUser(user.emails[0].value)
+                    .then(
+                        doc => {
+
+                            // console.log('doc here->>>>>>>>>>>>>>>>>>>>>>>>>>>', doc.doc._id)
+
+                            // console.log('req session here->>>>>>>>>>>>>>>>>>>>>>>>>>>', req.session)
+                            req.session.userId = doc.doc._id
+
+                            console.log('req.session.userId ->>>>>>>>>>>>>>>>>>', req.session.userId)
+                        }
+
+                    )
+
+                return res.redirect('/viewnote');
+            });
+        })(req, res, next)
+    });
+
 
 app.post('/fileupload/:notesId', requiresLogin, upload.array('selectedFile'), (req, res) => {
 
@@ -280,7 +308,7 @@ app.post('/checkemailid', function (req, res) {
 
 /* testing purpose
 app.get('/hello', (req, res) => {
-
+viewnotes
     console.log(req.sessionID);
     console.log(req.session.emailId);
     res.send(req.session);
@@ -335,6 +363,8 @@ app.post('/addnotes', requiresLogin, function (req, res) {
 
 app.post('/checkuser', function (req, res) {
 
+    // console.log('req.session here ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',req.session)
+
     if ((req.session && req.sessionID) && req.session.userId)
         return res.status(200).json({ message: 'connected' })
     else
@@ -371,7 +401,7 @@ app.put('/updatenotes', requiresLogin, function (req, res) {
 
 
 app.get('/viewnotes', requiresLogin, function (req, res) {
-    console.log('req id here', req.session.userId)
+    console.log('req id here ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>', req.session.userId)
     db.findNotes(req.session.userId)
         .then(
             (doc) => {
@@ -443,43 +473,26 @@ app.post('/changepassword', requiresLogin, function (req, res) {
 })
 
 
+
 function requiresLogin(req, res, next) {
     // console.log(req.session, req.sessionID, req.session.userId);
 
-    console.log('twitter email here ->>>>!!!!!!!!!!@@@@@@@@@@##########^^^%%%%%%%%%%%%', req.session.passport.user.emails[0].value)
+
+    console.log('session object->>>>>>>>>>>>>>>>>>>>>>>>>>', req.session);
+
+
+    // console.log('in requireslogin req.session here ->>>>>>>>>>>>>>>>>>>>>>>>>>', req.sessionID)
+
+    // console.log('in requireslogin req.session here ->>>>>>>>>>>>>>>>>>>>>>>>>>', req.session.userId)
 
     if ((req.session && req.sessionID) && req.session.userId)
-        return next();
-
-    else if (req.session.passport.user.emails[0].value) {
-        db.findOrCreateUser(req.session.passport.user.emails[0].value)
-            .then(
-                doc => {
-
-                    console.log('doc here->>>>>>>>>>>>>>>>>>>>>>>>>>>',doc)
-
-                    console.log('req session here->>>>>>>>>>>>>>>>>>>>>>>>>>>',req.session)
-                    req.session.userId = doc._id;
-                    return next()
-                }
-
-            )
-            .catch(
-                res => {
-                    var err = new Error('You must be logged in to view this page.');
-                    err.status = 401;
-                    return next(err);
-
-                }
-            )
-    }
+        return next()
     else {
         var err = new Error('You must be logged in to view this page.');
         err.status = 401;
         return next(err);
 
     }
-
 
 };
 

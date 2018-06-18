@@ -73,11 +73,7 @@ class ViewNotes extends React.Component {
                     console.log(this.state.notesList)
                 }
             })
-            .catch(
-                res => {
-                    message.error('error: ',res.data.message)
-                }
-            )
+            
             
     }
 
