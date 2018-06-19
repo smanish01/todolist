@@ -24,7 +24,7 @@ var userTableSchema = new mongoose.Schema({
 
 userTableSchema.plugin(findOrCreate);
 
-var userTableModel = mongoose.model('userTableModel', userTableSchema);
+const userTableModel = mongoose.model('userTableModel', userTableSchema);
 
 exports.createAccount = function (userObj) {
     userObj.password = bcrypt.hashSync(userObj.password, saltRounds);

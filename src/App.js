@@ -37,7 +37,6 @@ class App extends Component {
       })
   }
 
-
   logout() {
     // event.preventDefault();
     axios.post('http://localhost:3002/logout')

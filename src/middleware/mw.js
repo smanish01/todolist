@@ -26,7 +26,8 @@ passport.use(new TwitterStrategy({
 },
     function (token, tokenSecret, profile, done) {
         if (profile) {
-            user = profile;            
+
+            user = profile;
             return done(null, user);
         }
         else {
@@ -126,26 +127,30 @@ app.get('/auth/twitter/callback',
         passport.authenticate('twitter', function (err, user, info) {
             if (err) { return next(err); }
             if (!user) { return res.redirect('/'); }
-            req.logIn(user, function (err) {
+            req.logIn(user, { session: false }, function (err) {
                 if (err) { return next(err); }
 
-                // console.log('userinfo here ->>>>>>>>>>>>>>>>>>>', user.emails[0].value)
+
+                console.log('in callback user info here ->>>>>>>>>>>>>>>>>>>>.', user.emails[0].value)
+
 
                 db.findOrCreateUser(user.emails[0].value)
                     .then(
+
                         doc => {
-
-                            // console.log('doc here->>>>>>>>>>>>>>>>>>>>>>>>>>>', doc.doc._id)
-
-                            // console.log('req session here->>>>>>>>>>>>>>>>>>>>>>>>>>>', req.session)
+                            
                             req.session.userId = doc.doc._id
+                            return res.redirect('/viewnote');
 
-                            console.log('req.session.userId ->>>>>>>>>>>>>>>>>>', req.session.userId)
                         }
 
                     )
+                    .catch(
+                        err => {
+                            console.log('error: ', err)
+                        }
+                    )
 
-                return res.redirect('/viewnote');
             });
         })(req, res, next)
     });
@@ -170,6 +175,8 @@ app.post('/fileupload/:notesId', requiresLogin, upload.array('selectedFile'), (r
             }
         )
 });
+
+
 
 app.get('/notes1/:notesId', requiresLogin, function (req, res) {
 
@@ -310,7 +317,7 @@ app.post('/checkemailid', function (req, res) {
 app.get('/hello', (req, res) => {
 viewnotes
     console.log(req.sessionID);
-    console.log(req.session.emailId);
+    console.log(req.session.userId);
     res.send(req.session);
 
 })
@@ -318,6 +325,9 @@ viewnotes
 
 app.post('/addnotes', requiresLogin, function (req, res) {
     console.log('add notes req.body ->>>>>>>>>>>>>>>>>>$$$$$$$$$$$$$$$$$$$$$$$$$$$$$', req.body);
+
+
+    console.log('in addnotes req.session.userId ->>>>>>>>>>>>>>>>>>>>>>>>>>>>', req.session.userId)
 
     req.body.userId = req.session.userId;
 
@@ -401,11 +411,10 @@ app.put('/updatenotes', requiresLogin, function (req, res) {
 
 
 app.get('/viewnotes', requiresLogin, function (req, res) {
-    console.log('req id here ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>', req.session.userId)
+
     db.findNotes(req.session.userId)
         .then(
             (doc) => {
-                console.log('date doc here', doc)
                 var docData = [];
 
                 //map the parameter required
@@ -417,7 +426,6 @@ app.get('/viewnotes', requiresLogin, function (req, res) {
                             createdAt: values.createdAt,
                             updatedAt: values.updatedAt
                         }
-
                         docData.push(docColumn);
                     }
                 )
@@ -434,8 +442,9 @@ app.get('/viewnotes', requiresLogin, function (req, res) {
 })
 
 app.post('/logout', requiresLogin, function (req, res) {
-    console.log('logout session id and email : ', req.sessionID, req.session.userId);
+    console.log('logout session id and userId : ', req.sessionID, req.session.userId);
     req.session.destroy();
+    console.log('after logout session id and email : ', req.session);
 
     return res.status(200).json({ message: 'logged out' })
 
@@ -444,8 +453,6 @@ app.post('/logout', requiresLogin, function (req, res) {
 app.post('/changepassword', requiresLogin, function (req, res) {
 
     var userObj = req.body.userInfo
-
-    console.log(userObj)
 
     var currentPassword = req.body.values.currentPassword
 
@@ -473,17 +480,7 @@ app.post('/changepassword', requiresLogin, function (req, res) {
 })
 
 
-
 function requiresLogin(req, res, next) {
-    // console.log(req.session, req.sessionID, req.session.userId);
-
-
-    console.log('session object->>>>>>>>>>>>>>>>>>>>>>>>>>', req.session);
-
-
-    // console.log('in requireslogin req.session here ->>>>>>>>>>>>>>>>>>>>>>>>>>', req.sessionID)
-
-    // console.log('in requireslogin req.session here ->>>>>>>>>>>>>>>>>>>>>>>>>>', req.session.userId)
 
     if ((req.session && req.sessionID) && req.session.userId)
         return next()
