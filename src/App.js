@@ -17,7 +17,7 @@ class App extends Component {
     super(props);
     this.state = {
       isLoggedIn: false
-    };
+    }
 
   }
 
@@ -113,9 +113,8 @@ class App extends Component {
             <Route exact path='/signup' render={(props) => <Signup {...props} />} />
             <Route exact path='/viewnote' render={(props) => <Viewnotes {...props} />} />
             <Route exact path='/addnote' render={(props) => <Addnotes {...props} />} />
-            {/* <Route exact path='/viewnote/twitter' render={(props) => <Viewnotes {...props} {this.setState({ isLoggedIn: true })} />} /> */}
-            <Route exact path='/viewnote/:notesId/view' render={(props) => <Notes1 {...props} />} />
-            <Route exact path='/viewnote/:notesId/edit' render={(props) => <Notes1 {...props} />} />
+            <Route exact path='/viewnote/:notesId/view' render={(props) => <Notes1 {...props} isEdit={false} />} />
+            <Route exact path='/viewnote/:notesId/edit' render={(props) => <Notes1 {...props} isEdit={true} />} />
             <Route exact path='/profile' render={(props) => <Profile {...props} />} />
 
           </Switch>

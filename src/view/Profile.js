@@ -101,9 +101,12 @@ class Profile extends React.Component {
     }
 
     componentWillMount() {
+        
         axios.get('http://localhost:3002/userinfo')
             .then(
                 res => {
+
+                    console.log('userinfo here - >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.',res.data.message)
                     this.setState({ userInfo: res.data.message })
                 }
             )

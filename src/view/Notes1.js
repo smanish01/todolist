@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import '../App.css';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { Form, Icon, Button, Input, Checkbox, Row, Col, message, Card } from 'antd';
 import axios from 'axios';
@@ -13,7 +13,7 @@ const gridStyle = {
 class Notes1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { values: [], deletedContent: [], notes: '', editable: false, notesId: '', imageContentIds: [] };
+        this.state = { values: [], deletedContent: [], notes: '', notesId: '', imageContentIds: [] };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
@@ -38,7 +38,6 @@ class Notes1 extends React.Component {
 
         axios.post('http://localhost:3002/fileupload/' + this.props.match.params.notesId, formData)
             .then((result) => {
-                console.log('imageid result->>>>>>>############$$$$$$$$$$', result.data.message11)
 
                 this.setState({ imageContentIds: result.data.message11 })
             })
@@ -53,16 +52,9 @@ class Notes1 extends React.Component {
 
     componentWillMount() {
 
-        console.log('here', this.props.match.params.notesId)
-
         axios.get('http://localhost:3002/notes1/' + this.props.match.params.notesId)
             .then(res => {
-                console.log('con here', res.data.message)
-                console.log('notes title here', res.data.message1.title);
-                console.log('imageContent here', res.data.message2)
                 this.setState({ values: res.data.message, notes: res.data.message1.title, imageContentIds: res.data.message2 })
-
-                console.log('image file here->>>>>>>>>>>>>>>>>', this.state.imageContentIds)
 
             })
             .catch(
@@ -73,10 +65,8 @@ class Notes1 extends React.Component {
     }
 
 
+
     deleteImageIds(id) {
-
-
-        console.log(id);
 
         var tempNotesArr = _.clone(this.state.imageContentIds)
 
@@ -89,9 +79,6 @@ class Notes1 extends React.Component {
             }
         )
 
-        //removing notes from notesList
-
-        console.log(index)
         if (index > -1) {
             tempNotesArr.splice(index, 1);
         }
@@ -135,11 +122,7 @@ class Notes1 extends React.Component {
                 </FormItem>
             </div>
 
-            // <div key={i}>
-            //     Enter task here: <input type="checkbox" style={{ margin: '10px' }} checked={el.isChecked} onChange={this.handleCheckBox.bind(this, i)} />
-            //     <input value={el.content} type="text" onChange={this.handleChange.bind(this, i)} />
-            //     <Icon type='minus-circle-o' onClick={this.removeClick.bind(this, i, el._id)} style={{ fontSize: 20, color: '#08c' }} />
-            // </div>
+           
         )
     }
 
@@ -264,10 +247,6 @@ class Notes1 extends React.Component {
         )
     }
 
-    editable(value) {
-        this.setState({ editable: value });
-    }
-
     handleDelete(event) {
         event.preventDefault();
         axios.delete('http://localhost:3002/deletenotes/' + this.props.match.params.notesId)
@@ -288,7 +267,7 @@ class Notes1 extends React.Component {
             <div>
                 {
 
-                    this.state.editable
+                    this.props.isEdit
                         ?
                         (
                             <div id='middlePageDesign'>
@@ -336,9 +315,7 @@ class Notes1 extends React.Component {
                                                                     return (
                                                                         <div key={index} >
                                                                             <Card.Grid style={gridStyle}>
-                                                                                {console.log('mbcsdghvs#####################', image.imageId)}
-
-                                                                                
+                                                                            
                                                                                     <Icon type="delete" style={{ fontSize: 18, color: '#f5222d' }} onClick={this.deleteImageIds.bind(this, image.imageId)} />
                                                                                 
                                                                                 <a href={'http://localhost:3002/assets/' + image.imageId} download={image.originalName}>
@@ -374,7 +351,7 @@ class Notes1 extends React.Component {
 
                         (
                             <div id='middlePageDesign'>
-                                <Card title={this.state.notes} extra={<Link to={`/viewnote/${this.props.match.params.notesId}/edit`}><div onClick={this.editable.bind(this, true)}><Icon type="edit" style={{ fontSize: 20, color: '#08c' }} /></div></Link>}>
+                                <Card title={this.state.notes} extra={<Link to={`/viewnote/${this.props.match.params.notesId}/edit`}><Icon type="edit" style={{ fontSize: 20, color: '#08c' }} /> </Link>}>
 
                                     <Row>
                                         <Col span={11}>

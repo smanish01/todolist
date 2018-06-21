@@ -3,7 +3,7 @@ import '../App.css';
 import _ from 'lodash';
 import { Card, Col, Row } from 'antd';
 import { Icon, Popconfirm, message } from 'antd';
-import {  Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Moment from 'react-moment';
 const gridStyle = {
@@ -21,7 +21,7 @@ class ViewNotes extends React.Component {
         };
     }
 
-    
+
 
     deleteNotes(id) {
         // e.preventDefault();
@@ -53,7 +53,7 @@ class ViewNotes extends React.Component {
             .then(res => console.log(res))
             .catch(
                 res => {
-                    message.error('error: ',res.data.deleteNotes)
+                    message.error('error: ', res.data.deleteNotes)
                 }
             )
         message.success('Successfully Deleted');
@@ -73,8 +73,8 @@ class ViewNotes extends React.Component {
                     console.log(this.state.notesList)
                 }
             })
-            
-            
+
+
     }
 
     render() {
@@ -109,7 +109,7 @@ class ViewNotes extends React.Component {
 
                                     <div key={index}>
                                         <Card.Grid style={gridStyle}>
-                                                {notes.title}
+                                            {notes.title}
                                             <Row>
                                                 <Col span={9}>
                                                 </Col>
@@ -128,7 +128,7 @@ class ViewNotes extends React.Component {
                                                         </Col>
                                                 </Link>
 
-
+                                                
                                                 <Col span={9}>
                                                 </Col>
                                             </Row>
@@ -143,7 +143,7 @@ class ViewNotes extends React.Component {
                                                         )
                                                         :
                                                         (
-                                                        <div> Updated At : {<Moment fromNow>{this.state.notesList[index].updatedAt}</Moment>}</div>
+                                                            <div> Updated At : {<Moment fromNow>{this.state.notesList[index].updatedAt}</Moment>}</div>
                                                             // <div> Updated At : {dateFormat(this.state.notesList[index].updatedAt, 'dddd, mmmm dS, yyyy, h:MM')}</div>
                                                         )
                                                 }

@@ -14,7 +14,6 @@ const path = require('path');
 const multer = require('multer');
 const uuidv4 = require('uuid/v4');
 
-
 var passport = require('passport')
     , TwitterStrategy = require('passport-twitter').Strategy;
 
@@ -132,7 +131,6 @@ app.get('/auth/twitter/callback',
 
 
                 console.log('in callback user info here ->>>>>>>>>>>>>>>>>>>>.', user.emails[0].value)
-
 
                 db.findOrCreateUser(user.emails[0].value)
                     .then(
